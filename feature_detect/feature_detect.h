@@ -21,7 +21,7 @@ using namespace std;
 class FEATURE_DETECT_API Feature_detector {
 public:
 	Feature_detector(int w,int h,int d);
-	int detect(string graph_path, vtkSmartPointer<vtkImageData> whiteImage, int* coord, int len);
+	int detect(string graph_path, vtkSmartPointer<vtkImageData> whiteImage, float* coord, int len);
 
 private:
 	int width, height, depth;

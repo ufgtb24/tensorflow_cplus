@@ -139,10 +139,10 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage, 
 		exporter->Update();
 		exporter->Export(cImage);
 
-	const int64_t tensorDims[4] = { 1,width,height,depth };
+	const int64_t tensorDims[5] = { 1,width,height,depth,1 };
 	int *imNumPt = new int(1);
 
-	TF_Tensor*  tftensor=TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 4,
+	TF_Tensor*  tftensor=TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
 		cImage, width*height*depth,
 		NULL, imNumPt);
 
@@ -150,7 +150,7 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage, 
 }
 
 
-int Feature_detector::detect(string graph_path, vtkSmartPointer<vtkImageData> assignImage, int* coord, int len) {
+int Feature_detector::detect(string graph_path,vtkSmartPointer<vtkImageData> assignImage, float* coord, int len) {
 	//len: the size of output,different features are concatatented to one whole,e.g. two features are consist of six element int the coord
 	//
 	Session* session;
@@ -186,18 +186,15 @@ int Feature_detector::detect(string graph_path, vtkSmartPointer<vtkImageData> as
 
 	Tensor input_tensor = exportImage(assignImage, cImage);
 
-	Tensor keep_prob(DT_FLOAT, TensorShape());
-	keep_prob.scalar<float>()() = 1.0;
 
-	Tensor phase(DT_BOOL, TensorShape());
-	phase.scalar<bool>()() = false;
+	Tensor is_training(DT_BOOL, TensorShape());
+	is_training.scalar<bool>()() = false;
 
 
 
 	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
 		{ "input_box", input_tensor },
-		{ "keep_prob_input", keep_prob },
-		{ "phase_input", phase },
+		{ "is_training", is_training },
 	};
 
 
@@ -216,9 +213,9 @@ int Feature_detector::detect(string graph_path, vtkSmartPointer<vtkImageData> as
 	//auto output_c = outputs[0].flat<int>();
 	//auto output_c = outputs[0].flat<int>();
 
-	auto output_c = outputs[0].flat<int>();
+	auto output_c = outputs[0].flat<float>();
 	auto array = output_c.data();
-	int* int_array = static_cast<int*>(array);
+	float* int_array = static_cast<float*>(array);
 
 	for (int i = 0; i < len; i++) {
 		coord[i] = int_array[i];
