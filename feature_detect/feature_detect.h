@@ -21,16 +21,19 @@ using namespace std;
 class FEATURE_DETECT_API Feature_detector {
 public:
 	Feature_detector(int w,int h,int d);
-	int detect(string graph_path, vector<vtkSmartPointer<vtkImageData>> assignImages, float** coord, int feature_size);
+	~Feature_detector();
+	int detect(string graph_path, 
+		vector<vtkSmartPointer<vtkImageData>> assignImages, 
+		float** coord, 
+		int feature_size);
+
 
 private:
 	int width, height, depth;
-	Tensor exportImage(
-		vector<vtkSmartPointer<vtkImageData>> assignImage,
-		unsigned char *cImage_all,
-		unsigned char *cImage,
-		int image_size);
+	unsigned char *cImage_all;
+	unsigned char *cImage;
 
+	Tensor exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage);
 
 	//Tensor input_tensor;
 

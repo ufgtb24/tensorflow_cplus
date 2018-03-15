@@ -7,8 +7,10 @@
 #include "tensorflow/core/framework/tensor.h"
 #include  "tensorflow/c/c_api.h"
 #include "tensorflow/c/c_api_internal.h"
-
+#include "tensorflow/cc/ops/array_ops.h"
+#include <vector>
 using namespace tensorflow;
+using namespace std;
 #include "feature_detect.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
@@ -26,131 +28,57 @@ using namespace tensorflow;
 // see feature_detect.h for the class definition
 Feature_detector::Feature_detector(int w, int h, int d):width(w),height(h),depth(d)
 {
+	cImage_all = new unsigned char[20*w*h*d];
+	cImage = new unsigned char[w*h*d];
 
 //:input_tensor(DT_FLOAT, TensorShape({ 1,w,h,d }))
     return;
 }
 
-//int Feature_detector::detect(string graph_path, vtkSmartPointer<vtkImageData> assignImage, int* coord , int len) {
-//	//len: the size of output,different features are concatatented to one whole,e.g. two features are consist of six element int the coord
-//	//
-//		Session* session;
-//	Status status = NewSession(SessionOptions(), &session);
-//	if (!status.ok()) {
-//		std::cout << status.ToString() << "\n";
-//		return 1;
-//	}
-//
-//	// Read in the protobuf graph we exported
-//	// (The path seems to be relative to the cwd. Keep this in mind
-//	// when using `bazel run` since the cwd isn't where you call
-//	// `bazel run` but from inside a temp folder.)
-//	GraphDef graph_def;
-//	status = ReadBinaryProto(Env::Default(), graph_path, &graph_def);
-//	if (!status.ok()) {
-//		std::cout << status.ToString() << "\n";
-//		return 1;
-//	}
-//
-//	// Add the graph to the session
-//	status = session->Create(graph_def);
-//	if (!status.ok()) {
-//		std::cout << status.ToString() << "\n";
-//		return 1;
-//	}
-//	Tensor input_tensor(DT_FLOAT, TensorShape({ 1,height,width,depth }));
-//	auto input_tensor_mapped = input_tensor.tensor<float, 4>();
-//
-//	for (int y = 0; y < height; ++y) {
-//		for (int x = 0; x < width; ++x) {
-//			for (int c = 0; c < depth; ++c) {
-//				input_tensor_mapped(0, y, x, c) = *(unsigned char*)assignImage->GetScalarPointer(y, x, c);
-//			}
-//		}
-//	}
-//
-//	// Setup inputs and outputs:
-//
-//	// Our graph doesn't require any inputs, since it specifies default values,
-//	// but we'll change an input to demonstrate.
-//
-//	Tensor keep_prob(DT_FLOAT, TensorShape());
-//	keep_prob.scalar<float>()() = 1.0;
-//
-//	Tensor phase(DT_BOOL, TensorShape());
-//	phase.scalar<bool>()() = false;
-//
-//	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
-//		{ "input_box", input_tensor },
-//		{ "keep_prob_input", keep_prob },
-//		{ "phase_input", phase },
-//	};
-//
-//
-//	// The session will initialize the outputs
-//	std::vector<tensorflow::Tensor> outputs;
-//
-//	// Run the session, evaluating our "c" operation from the graph
-//	status = session->Run(inputs, { "output_node" }, {}, &outputs);
-//	if (!status.ok()) {
-//		std::cout << status.ToString() << "\n";
-//		return 1;
-//	}
-//
-//	// Grab the first output (we only evaluated one graph node: "c")
-//	// and convert the node to a scalar representation.
-//	//auto output_c = outputs[0].flat<int>();
-//	//auto output_c = outputs[0].flat<int>();
-//
-//	auto output_c= outputs[0].flat<int>();
-//	auto array = output_c.data();
-//	int* int_array = static_cast<int*>(array);
-//
-//	for (int i = 0; i < len; i++) {
-//		coord[i] = int_array[i];
-//	}
-//
-//	// (There are similar methods for vectors and matrices here:
-//	// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor.h)
-//
-//	//// Print the results
-//	//std::cout << outputs[0].DebugString() << "\n"; // Tensor<type: float shape: [] values: 30>
-//
-//									 // Free any resources used by the session
-//	session->Close();
-//	return 0;
-//
-//
-//	return 1;
-//}
+Feature_detector::~Feature_detector() {
+delete[] cImage_all;
+delete[] cImage;
+}
 
 
 
-Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage, unsigned char *cImage) {
+Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage) 
 
+{
+	int image_size=width*height*depth;
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
+	int index = 0;
+	int batch_size = assignImage.size();
+	for (auto iter = assignImage.cbegin(); iter != assignImage.cend(); iter++)
+	{
 	#if VTK_MAJOR_VERSION <= 5
-		exporter->SetInput(assignImage);
+		exporter->SetInput(*iter);
 	#else
-		exporter->SetInputData(assignImage);
+		exporter->SetInputData(*iter);
 	#endif
 		exporter->ImageLowerLeftOn();
 		exporter->Update();
 		exporter->Export(cImage);
+		memcpy(cImage_all + index*image_size, cImage, image_size);
+		index++;
+	}
 
-	const int64_t tensorDims[5] = { 1,width,height,depth,1 };
+	const int64_t tensorDims[5] = { batch_size,width,height,depth,1 };
 	int *imNumPt = new int(1);
 
 	TF_Tensor*  tftensor=TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
-		cImage, width*height*depth,
+		cImage_all, batch_size*image_size,
 		NULL, imNumPt);
 
 	return TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer);
 }
 
 
-int Feature_detector::detect(string graph_path,vtkSmartPointer<vtkImageData> assignImage, float* coord, int len) {
+int Feature_detector::detect(string graph_path,
+	vector<vtkSmartPointer<vtkImageData>> assignImages,
+	float** coord, 
+	int feature_size) {
 	//len: the size of output,different features are concatatented to one whole,e.g. two features are consist of six element int the coord
 	//
 	Session* session;
@@ -175,18 +103,16 @@ int Feature_detector::detect(string graph_path,vtkSmartPointer<vtkImageData> ass
 		std::cout << status.ToString() << "\n";
 		return 1;
 	}
-
+	
 	// Add the graph to the session
 	status = session->Create(graph_def);
 	if (!status.ok()) {
 		std::cout << status.ToString() << "\n";
 		return 1;
 	}
-	unsigned char *cImage = new unsigned char[width*depth*height];
+	int imageNum = assignImages.size();
 
-	Tensor input_tensor = exportImage(assignImage, cImage);
-
-
+	Tensor input_tensor = exportImage(assignImages);
 	Tensor is_training(DT_BOOL, TensorShape());
 	is_training.scalar<bool>()() = false;
 
@@ -197,30 +123,31 @@ int Feature_detector::detect(string graph_path,vtkSmartPointer<vtkImageData> ass
 		{ "is_training", is_training },
 	};
 
-
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;
-
 	// Run the session, evaluating our "c" operation from the graph
 	status = session->Run(inputs, { "output_node" }, {}, &outputs);
+
 	if (!status.ok()) {
 		std::cout << status.ToString() << "\n";
 		return 1;
 	}
-	delete[] cImage;
+
 	// Grab the first output (we only evaluated one graph node: "c")
 	// and convert the node to a scalar representation.
 	//auto output_c = outputs[0].flat<int>();
 	//auto output_c = outputs[0].flat<int>();
 
 	auto output_c = outputs[0].flat<float>();
-	auto array = output_c.data();
-	float* int_array = static_cast<float*>(array);
-
-	for (int i = 0; i < len; i++) {
-		coord[i] = int_array[i];
+	//auto array = output_c.data();
+	//float* batch_result = static_cast<float*>(array);
+	for (int i = 0; i < imageNum; i++) {
+		for (int j = 0; j < feature_size; j++) {
+			coord[i][j]= output_c(i*feature_size + j);
+			//cout << coord[i][j] << "  ";
+		}
+		cout << endl;
 	}
-
 	// (There are similar methods for vectors and matrices here:
 	// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor.h)
 
