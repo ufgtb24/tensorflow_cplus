@@ -13,25 +13,34 @@
 
 
 #include <string>
+#include <map>
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+enum TaskType
+{
+	Model_Up = 0,
+	Model_Low = 1,
+};
 
 // This class is exported from the feature_detect.dll
 class FEATURE_DETECT_API Feature_detector {
 public:
-	Feature_detector(int w,int h,int d);
+	Feature_detector(int len,map<TaskType,string> models);
 	~Feature_detector();
-	int detect(string graph_path, 
+	int detect(TaskType task_type,
 		vector<vtkSmartPointer<vtkImageData>> assignImages, 
 		float** coord, 
 		int feature_size);
 
 
 private:
-	int width, height, depth;
+	int len;
+	int image_size;
+
 	unsigned char *cImage_all;
 	unsigned char *cImage;
+	map<TaskType, Session*> sessions;
 
 	Tensor exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage);
 

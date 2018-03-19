@@ -26,11 +26,41 @@ using namespace std;
 
 // This is the constructor of a class that has been exported.
 // see feature_detect.h for the class definition
-Feature_detector::Feature_detector(int w, int h, int d):width(w),height(h),depth(d)
+Feature_detector::Feature_detector(int len, map<TaskType, string> type_path):
+	len(len),image_size(len*len*len)
 {
-	cImage_all = new unsigned char[20*w*h*d];
-	cImage = new unsigned char[w*h*d];
+	cImage_all = new unsigned char[20* image_size];
+	cImage = new unsigned char[image_size];
 
+	for (auto iter = type_path.cbegin(); iter != type_path.cend(); iter++)
+	{
+		Session* session;
+		SessionOptions session_options;
+		session_options.config.mutable_gpu_options()->set_allow_growth(true);
+		//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.7);
+		Status status = NewSession(session_options, &session);
+		if (!status.ok()) {
+			std::cout << status.ToString() << "\n";
+			return ;
+		}
+
+
+		GraphDef graph_def;
+		status = ReadBinaryProto(Env::Default(), iter->second, &graph_def);
+		if (!status.ok()) {
+			std::cout << status.ToString() << "\n";
+			return ;
+		}
+		status = session->Create(graph_def);
+		if (!status.ok()) {
+			std::cout << status.ToString() << "\n";
+			return ;
+		}
+
+
+		sessions[iter->first] = session;
+
+	}
 //:input_tensor(DT_FLOAT, TensorShape({ 1,w,h,d }))
     return;
 }
@@ -38,6 +68,12 @@ Feature_detector::Feature_detector(int w, int h, int d):width(w),height(h),depth
 Feature_detector::~Feature_detector() {
 delete[] cImage_all;
 delete[] cImage;
+
+for (auto iter = sessions.cbegin(); iter != sessions.cend(); iter++)
+{
+	iter->second->Close();
+	delete iter->second;
+}
 }
 
 
@@ -45,7 +81,7 @@ delete[] cImage;
 Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage) 
 
 {
-	int image_size=width*height*depth;
+	int image_size=len*len*len;
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
 	int index = 0;
@@ -64,7 +100,7 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 		index++;
 	}
 
-	const int64_t tensorDims[5] = { batch_size,width,height,depth,1 };
+	const int64_t tensorDims[5] = { batch_size,len,len,len,1 };
 	int *imNumPt = new int(1);
 
 	TF_Tensor*  tftensor=TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
@@ -75,41 +111,12 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 }
 
 
-int Feature_detector::detect(string graph_path,
+int Feature_detector::detect(TaskType task_type,
 	vector<vtkSmartPointer<vtkImageData>> assignImages,
 	float** coord, 
 	int feature_size) {
 	//len: the size of output,different features are concatatented to one whole,e.g. two features are consist of six element int the coord
 	//
-	Session* session;
-	SessionOptions session_options;
-	session_options.config.mutable_gpu_options()->set_allow_growth(true);
-	//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.7);
-	//Status status = NewSession(SessionOptions(), &session);
-	Status status = NewSession(session_options, &session);
-
-	if (!status.ok()) {
-		std::cout << status.ToString() << "\n";
-		return 1;
-	}
-
-	// Read in the protobuf graph we exported
-	// (The path seems to be relative to the cwd. Keep this in mind
-	// when using `bazel run` since the cwd isn't where you call
-	// `bazel run` but from inside a temp folder.)
-	GraphDef graph_def;
-	status = ReadBinaryProto(Env::Default(), graph_path, &graph_def);
-	if (!status.ok()) {
-		std::cout << status.ToString() << "\n";
-		return 1;
-	}
-	
-	// Add the graph to the session
-	status = session->Create(graph_def);
-	if (!status.ok()) {
-		std::cout << status.ToString() << "\n";
-		return 1;
-	}
 	int imageNum = assignImages.size();
 
 	Tensor input_tensor = exportImage(assignImages);
@@ -126,7 +133,8 @@ int Feature_detector::detect(string graph_path,
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;
 	// Run the session, evaluating our "c" operation from the graph
-	status = session->Run(inputs, { "output_node" }, {}, &outputs);
+
+	Status status = sessions[task_type]->Run(inputs, { "output_node" }, {}, &outputs);
 
 	if (!status.ok()) {
 		std::cout << status.ToString() << "\n";
@@ -144,9 +152,7 @@ int Feature_detector::detect(string graph_path,
 	for (int i = 0; i < imageNum; i++) {
 		for (int j = 0; j < feature_size; j++) {
 			coord[i][j]= output_c(i*feature_size + j);
-			//cout << coord[i][j] << "  ";
 		}
-		cout << endl;
 	}
 	// (There are similar methods for vectors and matrices here:
 	// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor.h)
@@ -155,8 +161,6 @@ int Feature_detector::detect(string graph_path,
 	//std::cout << outputs[0].DebugString() << "\n"; // Tensor<type: float shape: [] values: 30>
 
 	// Free any resources used by the session
-	session->Close();
-	delete session;
 	return 0;
 }
 
