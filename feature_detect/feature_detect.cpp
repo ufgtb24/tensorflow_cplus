@@ -26,14 +26,16 @@ using namespace std;
 
 // This is the constructor of a class that has been exported.
 // see feature_detect.h for the class definition
-Feature_detector::Feature_detector(int len, map<TaskType, string> type_path) :
+Feature_detector::Feature_detector(int len, map<Teeth_Group, string> type_path) :
 	len(len), image_size(len*len*len)
 {
-	cImage_all = new unsigned char[20 * image_size];
+	cImage_all = new unsigned char[8 * image_size];
 	cImage = new unsigned char[image_size];
-
+	cout << "construct !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 	for (auto iter = type_path.cbegin(); iter != type_path.cend(); iter++)
 	{
+		cout << "build session !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
+
 		Session* session;
 		SessionOptions session_options;
 		session_options.config.mutable_gpu_options()->set_allow_growth(true);
@@ -57,7 +59,7 @@ Feature_detector::Feature_detector(int len, map<TaskType, string> type_path) :
 			return;
 		}
 
-
+		
 		sessions[iter->first] = session;
 
 	}
@@ -71,6 +73,7 @@ Feature_detector::~Feature_detector() {
 
 	for (auto iter = sessions.cbegin(); iter != sessions.cend(); iter++)
 	{
+		cout << "close session !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		iter->second->Close();
 		delete iter->second;
 	}
@@ -81,7 +84,6 @@ Feature_detector::~Feature_detector() {
 Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage)
 
 {
-	int image_size = len*len*len;
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
 	int index = 0;
@@ -111,7 +113,7 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 }
 
 
-int Feature_detector::detect(TaskType task_type,
+int Feature_detector::detect(Teeth_Group task_type,
 	vector<vtkSmartPointer<vtkImageData>> assignImages,
 	float** coord,
 	int feature_size) {
@@ -133,6 +135,7 @@ int Feature_detector::detect(TaskType task_type,
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;
 	// Run the session, evaluating our "c" operation from the graph
+	cout << "run session!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
 	Status status = sessions[task_type]->Run(inputs, { "output_node" }, {}, &outputs);
 
@@ -141,14 +144,9 @@ int Feature_detector::detect(TaskType task_type,
 		return 1;
 	}
 
-	// Grab the first output (we only evaluated one graph node: "c")
-	// and convert the node to a scalar representation.
-	//auto output_c = outputs[0].flat<int>();
-	//auto output_c = outputs[0].flat<int>();
 
 	auto output_c = outputs[0].flat<float>();
-	//auto array = output_c.data();
-	//float* batch_result = static_cast<float*>(array);
+
 	for (int i = 0; i < imageNum; i++) {
 		for (int j = 0; j < feature_size; j++) {
 			coord[i][j] = output_c(i*feature_size + j);
