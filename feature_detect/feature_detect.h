@@ -18,21 +18,15 @@ using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 
+//class Tensor;
+//class Session;
+
 //8 types of detector model
 enum Teeth_Group
 {
-	up_back = 0, //2 3
-	up_middle = 1, //4 5
-	up_canine = 2, //6
-	up_front = 3, //7 8
-
-	low_back = 4, 
-	low_middle = 5,
-	low_canine = 6,
-	low_front = 7,
+	up = 0, 
+	low = 1, 
 };
-//class Tensor;
-//class Session;
 // This class is exported from the feature_detect.dll
 class FEATURE_DETECT_API Feature_detector {
 	/*
@@ -84,6 +78,7 @@ public:
 	int detect(
 		Teeth_Group task_type,
 		vector<vtkSmartPointer<vtkImageData>> assignImages,
+		int* teeh_type,
 		float** coord,
 		int feature_size
 	);
@@ -121,6 +116,22 @@ public:
 	Example:
 	detect 'groove'and'facc' of tooth2 and tooth3(both belong to Teeth Group'up_back')
 
+
+	map<Teeth_Group, string> models;
+	string model_path = "F://GitProjects//LibBasedVersion//bin//Release//learned_model//";
+	models[up_back] = model_path+"up_back.pb";
+	models[up_middle] = model_path + "up_middle.pb";
+	models[up_canine] = model_path + "up_canine.pb";
+	models[up_front] = model_path + "up_front.pb";
+
+	models[low_back] = model_path + "low_back.pb";
+	models[low_middle] = model_path + "low_middle.pb";
+	models[low_canine] = model_path + "low_canine.pb";
+	models[low_front] = model_path + "low_front.pb";
+
+	fearure_detector = new Feature_detector(128, models);
+
+
 	int teeth_num = 2;  
 
 	int feature_point_num=7;// facc 5  groove 2
@@ -156,8 +167,6 @@ public:
 
 		draw(coord_world)
 	}
-
-
 
 	*/
 

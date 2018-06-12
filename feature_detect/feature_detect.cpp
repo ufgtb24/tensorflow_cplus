@@ -115,10 +115,11 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 
 int Feature_detector::detect(Teeth_Group task_type,
 	vector<vtkSmartPointer<vtkImageData>> assignImages,
+	int* teeh_type,
 	float** coord,
-	int feature_size) {
-	//len: the size of output,different features are concatatented to one whole,e.g. two features are consist of six element int the coord
-	//
+	int feature_dim) {
+	//len: the size of output,different features are concatatented to one whole,
+	//e.g. two features are consist of six element int the coord
 	int imageNum = assignImages.size();
 
 	Tensor input_tensor = exportImage(assignImages);
@@ -148,8 +149,10 @@ int Feature_detector::detect(Teeth_Group task_type,
 	auto output_c = outputs[0].flat<float>();
 
 	for (int i = 0; i < imageNum; i++) {
-		for (int j = 0; j < feature_size; j++) {
-			coord[i][j] = output_c(i*feature_size + j);
+		teeh_type[i] = output_c(i*feature_dim);
+
+		for (int j = 0; j < feature_dim; j++) {
+			coord[i][j] = output_c(i*feature_dim + j+1);
 		}
 	}
 	// (There are similar methods for vectors and matrices here:

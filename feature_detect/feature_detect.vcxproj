@@ -80,8 +80,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\Release;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build;E:\TensorFlowCplusplus\tensorflow\tensorflow\core\kernels;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\external\nsync\public;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\protobuf\src\protobuf\src;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\external\eigen_archive;E:\TensorFlowCplusplus\tensorflow\third_party\eigen3;E:\TensorFlowCplusplus\tensorflow\;$(IncludePath)</IncludePath>
-    <LibraryPath>E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\Release;$(LibraryPath)</LibraryPath>
+    <IncludePath>E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\Release;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build;E:\TensorFlowCplusplus\tensorflow\tensorflow\core\kernels;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\external\nsync\public;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\protobuf\src\protobuf\src;E:\TensorFlowCplusplus\tensorflow\tensorflow\contrib\cmake\build\external\eigen_archive;E:\TensorFlowCplusplus\tensorflow\third_party\eigen3;E:\TensorFlowCplusplus\tensorflow\;E:\MyDLTools\tensorflow 1.6 dll whl;$(IncludePath)</IncludePath>
+    <LibraryPath>E:\MyDLTools\tensorflow 1.6 dll whl;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
