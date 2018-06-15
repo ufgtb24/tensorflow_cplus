@@ -46,13 +46,15 @@ Feature_detector::Feature_detector(int len, map<Teeth_Group, string> type_path) 
 			return;
 		}
 
-
+		cout << "start read pb\n";
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), iter->second, &graph_def);
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
 			return;
 		}
+		cout << "end read pb\n";
+
 		status = session->Create(graph_def);
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -121,10 +123,15 @@ int Feature_detector::detect(Teeth_Group task_type,
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
 	int imageNum = assignImages.size();
-
+	cout << "start detect1\n";
 	Tensor input_tensor = exportImage(assignImages);
+	cout << "start detect2\n";
+
 	Tensor is_training(DT_BOOL, TensorShape());
+	cout << "start detect3\n";
+
 	is_training.scalar<bool>()() = false;
+	cout << "start detect4\n";
 
 
 
@@ -132,6 +139,7 @@ int Feature_detector::detect(Teeth_Group task_type,
 		{ "input_box", input_tensor },
 		{ "is_training", is_training },
 	};
+	cout << "start detect5\n";
 
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;
@@ -149,10 +157,10 @@ int Feature_detector::detect(Teeth_Group task_type,
 	auto output_c = outputs[0].flat<float>();
 
 	for (int i = 0; i < imageNum; i++) {
-		teeh_type[i] = output_c(i*feature_dim);
+		teeh_type[i] = output_c(i*(feature_dim+1));
 
 		for (int j = 0; j < feature_dim; j++) {
-			coord[i][j] = output_c(i*feature_dim + j+1);
+			coord[i][j] = output_c(i*(feature_dim+1) + j+1);
 		}
 	}
 	// (There are similar methods for vectors and matrices here:

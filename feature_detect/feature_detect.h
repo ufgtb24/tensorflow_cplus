@@ -11,15 +11,15 @@
 #define FEATURE_DETECT_API __declspec(dllimport)
 #endif
 
-
+#include <vector>
 #include <string>
 #include <map>
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
-
-//class Tensor;
-//class Session;
+//
+class Tensor;
+class Session;
 
 //8 types of detector model
 enum Teeth_Group
