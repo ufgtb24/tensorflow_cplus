@@ -49,7 +49,10 @@ Feature_detector::Feature_detector(int len, map<Teeth_Group, string> type_path) 
 		cout << "start read pb\n";
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), iter->second, &graph_def);
+		cout << status;
 		if (!status.ok()) {
+			cout << "state judge\n";
+
 			std::cout << status.ToString() << "\n";
 			return;
 		}

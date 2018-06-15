@@ -9,7 +9,7 @@ int main(int, char *[])
 	vector<vtkSmartPointer<vtkImageData>> vtkImageVec;
 	makeVtkImages(num, vtkImageVec);
 	map<Teeth_Group, string> type_path;
-	type_path[up] = "E://TensorFlowCplusplus//feature_detect//x64//Release//low_graph.pb";
+	type_path[up] = "F://ProjectData//Detector//model//upper//output_graph.pb";
 	Feature_detector* fd = new Feature_detector(128, type_path);
 	cout << "finish";
 	int teethType[1000];
