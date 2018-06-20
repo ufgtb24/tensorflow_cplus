@@ -6,7 +6,7 @@ using namespace std;
 int main(int, char *[])
 {
 	int num = 5;
-	vector<vtkSmartPointer<vtkImageData>> vtkImageVec;
+	vtkSmartPointer<vtkImageData> vtkImageVec[5];
 	makeVtkImages(num, vtkImageVec);
 
 	char* type_path[] = 
@@ -15,12 +15,12 @@ int main(int, char *[])
 	Teeth_Group type_id[] = { up };
 
 	Feature_detector* fd = new Feature_detector(128, type_id,type_path,1);
-	int teethType[1000];
+	int teethType[10];
 	float** coord = new float*[5];
 	for (int i = 0; i < 5; i++) {
 		coord[i] = new float[22];
 	}
-	fd->detect(up, vtkImageVec, teethType, coord, 21);
+	fd->detect(up, vtkImageVec,5, teethType, coord, 21);
 	for (int i = 0; i < 5; i++) {
 		for(int j=0;j<22;j++)
 			cout<<coord[i][j]<<"   ";

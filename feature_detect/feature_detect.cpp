@@ -85,19 +85,18 @@ Feature_detector::~Feature_detector() {
 
 
 
-Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage)
+Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
 
 {
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
 	int index = 0;
-	int batch_size = assignImage.size();
-	for (auto iter = assignImage.cbegin(); iter != assignImage.cend(); iter++)
+	for (int iter = 0; iter <num; iter++)
 	{
 #if VTK_MAJOR_VERSION <= 5
 		exporter->SetInput(*iter);
 #else
-		exporter->SetInputData(*iter);
+		exporter->SetInputData(assignImage[iter]);
 #endif
 		exporter->ImageLowerLeftOn();
 		exporter->Update();
@@ -106,11 +105,11 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 		index++;
 	}
 
-	const int64_t tensorDims[5] = { batch_size,len,len,len,1 };
+	const int64_t tensorDims[5] = { num,len,len,len,1 };
 	int *imNumPt = new int(1);
 
 	TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
-		cImage_all, batch_size*image_size,
+		cImage_all, num*image_size,
 		NULL, imNumPt);
 
 	return TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer);
@@ -118,15 +117,15 @@ Tensor Feature_detector::exportImage(vector<vtkSmartPointer<vtkImageData>> assig
 
 
 int Feature_detector::detect(Teeth_Group task_type,
-	vector<vtkSmartPointer<vtkImageData>> assignImages,
+	vtkSmartPointer<vtkImageData> assignImages[],
+	int imageNum,
 	int* teeh_type,
 	float** coord,
 	int feature_dim) {
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
-	int imageNum = assignImages.size();
 	cout << "start detect1\n";
-	Tensor input_tensor = exportImage(assignImages);
+	Tensor input_tensor = exportImage(assignImages, imageNum);
 	cout << "start detect2\n";
 
 	Tensor is_training(DT_BOOL, TensorShape());

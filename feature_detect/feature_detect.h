@@ -12,8 +12,8 @@ using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 //
-class Tensor;
-class Session;
+//class Tensor;
+//class Session;
 
 enum Teeth_Group
 {
@@ -28,7 +28,7 @@ class FEATURE_DETECT_API Feature_detector {
 	*/
 public:
 	Feature_detector(
-		int len,
+		int box_size,
 		Teeth_Group group_id[],
 		char* group_path[],
 		int group_num
@@ -36,10 +36,11 @@ public:
 
 	~Feature_detector();
 	int detect(
-		Teeth_Group task_type,
-		vector<vtkSmartPointer<vtkImageData>> assignImages,
-		int* teeh_type,
-		float** coord,
+		Teeth_Group group_id,
+		vtkSmartPointer<vtkImageData> assignImages[],
+		int teeth_num,
+		int* teeh_type_output,
+		float** coord_output,
 		int feature_size
 	);
 
@@ -52,7 +53,7 @@ private:
 	unsigned char *cImage_all;
 	unsigned char *cImage;
 	map<Teeth_Group, Session*> sessions;
-	Tensor exportImage(vector<vtkSmartPointer<vtkImageData>> assignImage);
+	Tensor exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num);
 };
 
 extern FEATURE_DETECT_API int nfeature_detect;
