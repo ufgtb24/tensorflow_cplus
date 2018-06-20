@@ -12,8 +12,8 @@ using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
 //
-//class Tensor;
-//class Session;
+class Tensor;
+class Session;
 
 enum Teeth_Group
 {
@@ -29,9 +29,9 @@ class FEATURE_DETECT_API Feature_detector {
 public:
 	Feature_detector(
 		int len,
-		Teeth_Group type_id[],
-		char* type_path[], 
-		int type_num
+		Teeth_Group group_id[],
+		char* group_path[],
+		int group_num
 	);
 
 	~Feature_detector();

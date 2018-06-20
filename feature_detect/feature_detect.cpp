@@ -26,12 +26,12 @@ using namespace std;
 
 // This is the constructor of a class that has been exported.
 // see feature_detect.h for the class definition
-Feature_detector::Feature_detector(int len, Teeth_Group type_id[],char* type_path[],int type_num) :
+Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
 	cImage_all = new unsigned char[8 * image_size];
 	cImage = new unsigned char[image_size];
-	for (int iter=0; iter<type_num; iter++)
+	for (int iter=0; iter<group_num; iter++)
 	{
 		cout << "build session !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
@@ -47,7 +47,7 @@ Feature_detector::Feature_detector(int len, Teeth_Group type_id[],char* type_pat
 
 		cout << "start read pb\n";
 		GraphDef graph_def;
-		status = ReadBinaryProto(Env::Default(), type_path[iter], &graph_def);
+		status = ReadBinaryProto(Env::Default(), group_path[iter], &graph_def);
 		cout << status;
 		if (!status.ok()) {
 			cout << "state judge\n";
@@ -64,7 +64,7 @@ Feature_detector::Feature_detector(int len, Teeth_Group type_id[],char* type_pat
 		}
 
 		
-		sessions[type_id[iter]] = session;
+		sessions[group_id[iter]] = session;
 
 	}
 	//:input_tensor(DT_FLOAT, TensorShape({ 1,w,h,d }))
