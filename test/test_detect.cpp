@@ -8,10 +8,13 @@ int main(int, char *[])
 	int num = 5;
 	vector<vtkSmartPointer<vtkImageData>> vtkImageVec;
 	makeVtkImages(num, vtkImageVec);
-	map<Teeth_Group, string> type_path;
-	type_path[up] = "E://TensorFlowCplusplus//feature_detect//x64//Release//up_middle.pb";
-	Feature_detector* fd = new Feature_detector(128, type_path);
-	cout << "finish";
+
+	char* type_path[] = 
+	{"E://TensorFlowCplusplus//feature_detect//x64//Release//low_middle.pb"};
+
+	Teeth_Group type_id[] = { up };
+
+	Feature_detector* fd = new Feature_detector(128, type_id,type_path,1);
 	int teethType[1000];
 	float** coord = new float*[5];
 	for (int i = 0; i < 5; i++) {
