@@ -6,7 +6,7 @@
 #include"test.h"
 //using namespace std;
 int dims[3] = { 2,3,1 };
-void makeVtkImages(int num, vtkSmartPointer<vtkImageData>* vtkImageVec) {
+void makeVtkImages(int num, vtkSmartPointer<vtkImageData> vtkImageVec[]) {
 	for (int i = 0; i < num; i++) {
 		vtkSmartPointer<vtkImageData> imageData =
 			vtkSmartPointer<vtkImageData>::New();

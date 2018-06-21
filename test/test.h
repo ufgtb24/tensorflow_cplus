@@ -6,3 +6,4 @@
 using namespace std;
 extern int dims[3];
 void makeVtkImages(int num, vtkSmartPointer<vtkImageData> vtkImageVec[]);
+vtkSmartPointer<vtkImageData> loadmhd(std::string mhd_path);

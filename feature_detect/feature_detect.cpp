@@ -137,8 +137,8 @@ int Feature_detector::detect(Teeth_Group task_type,
 
 
 	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
-		{ "input_box", input_tensor },
-		{ "is_training", is_training },
+		{ "detector/input_box", input_tensor },
+		{ "detector/is_training", is_training },
 	};
 	cout << "start detect5\n";
 
@@ -147,7 +147,7 @@ int Feature_detector::detect(Teeth_Group task_type,
 	// Run the session, evaluating our "c" operation from the graph
 	cout << "run session!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
-	Status status = sessions[task_type]->Run(inputs, { "output_node" }, {}, &outputs);
+	Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
 
 	if (!status.ok()) {
 		std::cout << status.ToString() << "\n";
