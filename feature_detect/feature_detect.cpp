@@ -29,11 +29,10 @@ using namespace std;
 Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
-	cImage_all = new unsigned char[8 * image_size];
+	cImage_all = new unsigned char[14 * image_size];
 	cImage = new unsigned char[image_size];
 	for (int iter=0; iter<group_num; iter++)
 	{
-		cout << "build session !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 
 		Session* session;
 		SessionOptions session_options;
@@ -48,7 +47,6 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 		cout << "start read pb\n";
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), group_path[iter], &graph_def);
-		cout << status;
 		if (!status.ok()) {
 			cout << "state judge\n";
 
@@ -104,6 +102,7 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 		memcpy(cImage_all + index*image_size, cImage, image_size);
 		index++;
 	}
+	cout << "--------------------e1";
 
 	const int64_t tensorDims[5] = { num,len,len,len,1 };
 	int *imNumPt = new int(1);
@@ -111,6 +110,7 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 	TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
 		cImage_all, num*image_size,
 		NULL, imNumPt);
+	cout << "--------------------e2";
 
 	return TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer);
 }
@@ -124,15 +124,13 @@ int Feature_detector::detect(Teeth_Group task_type,
 	int feature_dim) {
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
-	cout << "start detect1\n";
+	cout << "--------------------1";
+
 	Tensor input_tensor = exportImage(assignImages, imageNum);
-	cout << "start detect2\n";
 
 	Tensor is_training(DT_BOOL, TensorShape());
-	cout << "start detect3\n";
-
+	cout << "--------------------2";
 	is_training.scalar<bool>()() = false;
-	cout << "start detect4\n";
 
 
 
@@ -140,7 +138,6 @@ int Feature_detector::detect(Teeth_Group task_type,
 		{ "detector/input_box", input_tensor },
 		{ "detector/is_training", is_training },
 	};
-	cout << "start detect5\n";
 
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;

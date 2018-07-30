@@ -11,7 +11,7 @@
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
-//
+
 class Tensor;
 class Session;
 
