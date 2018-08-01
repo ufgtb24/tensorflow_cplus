@@ -11,6 +11,7 @@
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#define MAX_NUM 14
 
 class Tensor;
 class Session;

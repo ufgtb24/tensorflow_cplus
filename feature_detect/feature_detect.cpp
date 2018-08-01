@@ -15,21 +15,11 @@ using namespace std;
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
 #include <vtkImageExport.h>
-//// This is an example of an exported variable
-//FEATURE_DETECT_API int nfeature_detect=0;
-//
-//// This is an example of an exported function.
-//FEATURE_DETECT_API int fnfeature_detect(void)
-//{
-//    return 42;
-//}
 
-// This is the constructor of a class that has been exported.
-// see feature_detect.h for the class definition
 Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
-	cImage_all = new unsigned char[14 * image_size];
+	cImage_all = new unsigned char[MAX_NUM * image_size];
 	cImage = new unsigned char[image_size];
 	for (int iter=0; iter<group_num; iter++)
 	{
@@ -88,7 +78,6 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 {
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
-	int index = 0;
 	for (int iter = 0; iter <num; iter++)
 	{
 #if VTK_MAJOR_VERSION <= 5
@@ -99,10 +88,8 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 		exporter->ImageLowerLeftOn();
 		exporter->Update();
 		exporter->Export(cImage);
-		memcpy(cImage_all + index*image_size, cImage, image_size);
-		index++;
+		memcpy(cImage_all + iter*image_size, cImage, image_size);
 	}
-	cout << "--------------------e1";
 
 	const int64_t tensorDims[5] = { num,len,len,len,1 };
 	int *imNumPt = new int(1);
@@ -110,7 +97,6 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 	TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
 		cImage_all, num*image_size,
 		NULL, imNumPt);
-	cout << "--------------------e2";
 
 	return TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer);
 }
@@ -124,12 +110,9 @@ int Feature_detector::detect(Teeth_Group task_type,
 	int feature_dim) {
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
-	cout << "--------------------1";
 
 	Tensor input_tensor = exportImage(assignImages, imageNum);
-
 	Tensor is_training(DT_BOOL, TensorShape());
-	cout << "--------------------2";
 	is_training.scalar<bool>()() = false;
 
 
@@ -142,9 +125,8 @@ int Feature_detector::detect(Teeth_Group task_type,
 	// The session will initialize the outputs
 	std::vector<tensorflow::Tensor> outputs;
 	// Run the session, evaluating our "c" operation from the graph
-	cout << "run session!!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
-
 	Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
+	cout << "finish run session! " << endl;
 
 	if (!status.ok()) {
 		std::cout << status.ToString() << "\n";

@@ -1,174 +1,26 @@
-﻿//#include <vtkImageData.h>
-//#include <vtkImageExport.h>
-//#include <vtkSmartPointer.h>
-////#include <vtkVersion.h>
-//#include <vector>
-#include"test.h"
-//using namespace std;
-int dims[3] = { 2,3,1 };
-void makeVtkImages(int num, vtkSmartPointer<vtkImageData> vtkImageVec[]) {
-	for (int i = 0; i < num; i++) {
-		vtkSmartPointer<vtkImageData> imageData =
-			vtkSmartPointer<vtkImageData>::New();
+﻿//#include <stdio.h>
+#include <cuda_runtime_api.h>
+#include <cuda.h>
+#include <iostream>
+using namespace std;
+int checkGpuMem()
 
-		// Specify the size of the image data
+{
 
-		imageData->SetDimensions(dims[0], dims[1], dims[2]);
-#if VTK_MAJOR_VERSION <= 5
-		imageData->SetNumberOfScalarComponents(1);
-		imageData->SetScalarTypeToUnsignedChar();
-#else
-		imageData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-#endif
+	float free_m, total_m, used_m;
 
-		unsigned char value = 0;
-		for (int row = 0; row < dims[0]; ++row)
-		{
-			for (int col = 0; col < dims[1]; ++col)
-			{
-				unsigned char* pixel =
-					static_cast<unsigned char*>(imageData->GetScalarPointer(row, col, 0));
-				pixel[0] = value;
-				value += 10;
-			}
-		}
-		vtkImageVec[i] = imageData;
-	}
+	size_t free_t, total_t;
 
+	cudaMemGetInfo(&free_t, &total_t);
+	//(unsigned int)
+	free_m = (int)(free_t / 1048576.0);
+
+	total_m = (int)(total_t / 1048576.0);
+
+	used_m = total_m - free_m;
+	cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
+	return used_m;
 }
-
-//int main(int, char *[])
-//{
-//	int num = 5;
-//	vector<vtkSmartPointer<vtkImageData>> vtkImageVec;
-//	makeVtkImages(num, vtkImageVec);
-//
-//	// Create the c-style image to convert the VTK image to
-//	unsigned char *cImage = new unsigned char[dims[0] * dims[1] * dims[2]];
-//	unsigned char *cImage_all = new unsigned char[num*dims[0] * dims[1] * dims[2]];
-//
-//	vtkSmartPointer<vtkImageExport> exporter =
-//		vtkSmartPointer<vtkImageExport>::New();
-//
-//
-//	/////////////////////
-////	vtkSmartPointer<vtkImageData> imageData =
-////		vtkSmartPointer<vtkImageData>::New();
-////
-////	// Specify the size of the image data
-////
-////	imageData->SetDimensions(dims[0], dims[1], dims[2]);
-////#if VTK_MAJOR_VERSION <= 5
-////	imageData->SetNumberOfScalarComponents(1);
-////	imageData->SetScalarTypeToUnsignedChar();
-////#else
-////	imageData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-////#endif
-////
-////	unsigned char value = 0;
-////	for (int row = 0; row < dims[0]; ++row)
-////	{
-////		for (int col = 0; col < dims[1]; ++col)
-////		{
-////			unsigned char* pixel =
-////				static_cast<unsigned char*>(imageData->GetScalarPointer(row, col, 0));
-////			pixel[0] = value;
-////			value += 10;
-////		}
-////	}
-////
-//
-//	/////////////////////
-//
-//	int index = 0;
-//	for (auto iter = vtkImageVec.cbegin(); iter != vtkImageVec.cend(); iter++)
-//
-//	{
-//		exporter->SetInputData(*iter);
-//		exporter->ImageLowerLeftOn();
-//		exporter->Update();
-//		exporter->Export(cImage);
-//
-//		for (int row = 0; row < dims[0]; ++row)
-//		{
-//			for (int col = 0; col < dims[1]; ++col)
-//			{
-//				std::cout << static_cast<int>(cImage[col * dims[0] + row]) << " ";
-//			}
-//			std::cout << std::endl;
-//		}
-//		cout << '\n';
-//
-//
-//
-//		cout << "begin memcpy\n";
-//		memcpy(cImage_all + index*dims[0] * dims[1] * dims[2], cImage, dims[0] * dims[1] * dims[2]);
-//		cout << "finish memcpy\n";
-//		index++;
-//
-//	}
-//
-//	delete[] cImage;
-//	delete[] cImage_all;
-//
-//
-//	return EXIT_SUCCESS;
-//}
-
-
-//int main(int, char *[])
-//{
-//	// Create an image data
-//	vtkSmartPointer<vtkImageData> imageData =
-//		vtkSmartPointer<vtkImageData>::New();
-//
-//	// Specify the size of the image data
-//	int dims[3] = { 2,3,1 };
-//
-//	imageData->SetDimensions(dims[0], dims[1], dims[2]);
-//#if VTK_MAJOR_VERSION <= 5
-//	imageData->SetNumberOfScalarComponents(1);
-//	imageData->SetScalarTypeToUnsignedChar();
-//#else
-//	imageData->AllocateScalars(VTK_UNSIGNED_CHAR, 1);
-//#endif
-//
-//	unsigned char value = 0;
-//	for (int row = 0; row < dims[0]; ++row)
-//	{
-//		for (int col = 0; col < dims[1]; ++col)
-//		{
-//			unsigned char* pixel =
-//				static_cast<unsigned char*>(imageData->GetScalarPointer(row, col, 0));
-//			pixel[0] = value;
-//			value += 10;
-//		}
-//	}
-//
-//	// Create the c-style image to convert the VTK image to
-//	unsigned char *cImage = new unsigned char[dims[0] * dims[1] * dims[2]];
-//
-//	vtkSmartPointer<vtkImageExport> exporter =
-//		vtkSmartPointer<vtkImageExport>::New();
-//#if VTK_MAJOR_VERSION <= 5
-//	exporter->SetInput(imageData);
-//#else
-//	exporter->SetInputData(imageData);
-//#endif
-//	exporter->ImageLowerLeftOn();
-//	exporter->Update();
-//	exporter->Export(cImage);
-//
-//	// Output the raw c-style image
-//	for (int row = 0; row < dims[0]; ++row)
-//	{
-//		for (int col = 0; col < dims[1]; ++col)
-//		{
-//			std::cout << static_cast<int>(cImage[col * dims[0] + row]) << " ";
-//		}
-//		std::cout << std::endl;
-//	}
-//	delete[] cImage;
-//
-//	return EXIT_SUCCESS;
-//}
+int main_1(int, char *[]) {
+	checkGpuMem();
+}

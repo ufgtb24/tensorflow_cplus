@@ -2,8 +2,8 @@
 #include"test.h"
 #include <map>
 # include <iostream>
+
 using namespace std;
-#define MAX_NUM 14
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 1
 int main(int, char *[])
@@ -52,16 +52,25 @@ int main(int, char *[])
 	for (int i = 0; i < MAX_NUM; i++) {
 		coord[i] = new float[21];
 	}
-	cout << endl << "up detect !!!!!";
+	int use_0=checkGpuMem();
+	fd->detect(up, vtkImageVec_up, 2, teethType, coord, 21);
+	int use_1 = checkGpuMem() - use_0;
+	cout<<"\nuse_1: "<< use_1<<endl;
+	fd->detect(up, vtkImageVec_up, 14, teethType, coord, 21);
+	int use_2 = checkGpuMem() - use_0;
 
-	fd->detect(up, vtkImageVec_up, IMAGE_NUM_UP, teethType, coord, 21);
-	for (int i = 0; i < IMAGE_NUM_UP; i++) {
-		cout <<"teeth_type is : "<< teethType[i] << endl;
-		for(int j=0;j<21;j++)
-			cout<<int(coord[i][j])<<"   ";
-		cout << endl;
-	}
+	cout << "\nuse_2: " << use_2 << endl;
+	cout << "\nuse_single: " << use_2-use_1 << endl;
 
+
+	//for (int i = 0; i < IMAGE_NUM_UP; i++) {
+	//	cout <<"teeth_type is : "<< teethType[i] << endl;
+	//	for(int j=0;j<21;j++)
+	//		cout<<int(coord[i][j])<<"   ";
+	//	cout << endl;
+	//}
+	delete fd;
+	cout << "delete detector";
 	//cout << endl<<"low detect !!!!!!!!";
 
 	//fd->detect(low, vtkImageVec_low, IMAGE_NUM_LOW, teethType, coord, 21);
