@@ -8,13 +8,37 @@
 #include  "tensorflow/c/c_api.h"
 #include "tensorflow/c/c_api_internal.h"
 #include "tensorflow/cc/ops/array_ops.h"
-#include <vector>
 using namespace tensorflow;
-using namespace std;
 #include "feature_detect.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
 #include <vtkImageExport.h>
+#include <math.h>
+#include <cuda_runtime_api.h>
+#include <cuda.h>
+#include <iostream>
+using namespace std;
+int checkGpuMem()
+
+{
+
+	float free_m, total_m, used_m;
+
+	size_t free_t, total_t;
+
+	cudaMemGetInfo(&free_t, &total_t);
+	//(unsigned int)
+	free_m = (int)(free_t / 1048576.0);
+
+	total_m = (int)(total_t / 1048576.0);
+
+	used_m = total_m - free_m;
+	//cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
+	return free_m;
+}
+
+
+
 
 Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
@@ -34,16 +58,13 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 			return;
 		}
 
-		cout << "start read pb\n";
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), group_path[iter], &graph_def);
 		if (!status.ok()) {
-			cout << "state judge\n";
 
 			std::cout << status.ToString() << "\n";
 			return;
 		}
-		cout << "end read pb\n";
 
 		status = session->Create(graph_def);
 		if (!status.ok()) {
@@ -55,6 +76,10 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 		sessions[group_id[iter]] = session;
 
 	}
+
+	int f=checkGpuMem();
+	seg_size =ceil((f-284)/128.0);
+	cout <<"number of teeth in one segment: "<< seg_size << endl;
 	//:input_tensor(DT_FLOAT, TensorShape({ 1,w,h,d }))
 	return;
 }
@@ -65,7 +90,6 @@ Feature_detector::~Feature_detector() {
 
 	for (auto iter = sessions.cbegin(); iter != sessions.cend(); iter++)
 	{
-		cout << "close session !!!!!!!!!!!!!!!!!!!!!!!!!" << endl;
 		iter->second->Close();
 		delete iter->second;
 	}
@@ -73,7 +97,7 @@ Feature_detector::~Feature_detector() {
 
 
 
-Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
+vector<Tensor> Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
 
 {
 	vtkSmartPointer<vtkImageExport> exporter =
@@ -90,15 +114,22 @@ Tensor Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[]
 		exporter->Export(cImage);
 		memcpy(cImage_all + iter*image_size, cImage, image_size);
 	}
-
-	const int64_t tensorDims[5] = { num,len,len,len,1 };
+	int sample_size = seg_size;
 	int *imNumPt = new int(1);
+	vector<Tensor> seg_tensors;
 
-	TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
-		cImage_all, num*image_size,
+	for (int s = 0; s < seg_num; s++) {
+		if (s == seg_num-1&& mod_image_num != 0) {
+			sample_size = mod_image_num;
+		}
+		const int64_t tensorDims[5] = { sample_size,len,len,len,1 };
+		TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
+		cImage_all+s*seg_size*image_size, sample_size*image_size,
 		NULL, imNumPt);
 
-	return TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer);
+		seg_tensors.push_back(TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer));
+	}
+	return seg_tensors;
 }
 
 
@@ -110,37 +141,50 @@ int Feature_detector::detect(Teeth_Group task_type,
 	int feature_dim) {
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
-
-	Tensor input_tensor = exportImage(assignImages, imageNum);
+	if (imageNum < seg_size) { 
+		seg_size = imageNum; 
+		seg_num = 1;
+		mod_image_num = 0;
+	}
+	else {
+		seg_num = imageNum / seg_size;
+		mod_image_num = imageNum%seg_size;
+		if (mod_image_num != 0)seg_num++;
+	}
+	
+	vector<Tensor> seg_tensors=exportImage(assignImages, imageNum);
 	Tensor is_training(DT_BOOL, TensorShape());
 	is_training.scalar<bool>()() = false;
+	int sample_size = seg_size;
+
+	for (int s = 0; s < seg_num; s++) {
+		Tensor input_tensor = seg_tensors[s];
+
+		std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
+			{ "detector/input_box", input_tensor },
+			{ "detector/is_training", is_training },
+		};
+
+		// The session will initialize the outputs
+		std::vector<tensorflow::Tensor> outputs;
+		// Run the session, evaluating our "c" operation from the graph
+		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
+		cout << "finish run session! " << endl;
+
+		if (!status.ok()) {
+			std::cout << status.ToString() << "\n";
+			return 1;
+		}
 
 
+		auto output_c = outputs[0].flat<float>();
+		if (s == seg_num - 1 && mod_image_num != 0)sample_size = mod_image_num;
+		for (int i = 0; i < sample_size; i++) {
+			teeh_type[s*seg_size+i] = output_c(i*(feature_dim+1));
 
-	std::vector<std::pair<string, tensorflow::Tensor>> inputs = {
-		{ "detector/input_box", input_tensor },
-		{ "detector/is_training", is_training },
-	};
-
-	// The session will initialize the outputs
-	std::vector<tensorflow::Tensor> outputs;
-	// Run the session, evaluating our "c" operation from the graph
-	Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
-	cout << "finish run session! " << endl;
-
-	if (!status.ok()) {
-		std::cout << status.ToString() << "\n";
-		return 1;
-	}
-
-
-	auto output_c = outputs[0].flat<float>();
-
-	for (int i = 0; i < imageNum; i++) {
-		teeh_type[i] = output_c(i*(feature_dim+1));
-
-		for (int j = 0; j < feature_dim; j++) {
-			coord[i][j] = output_c(i*(feature_dim+1) + j+1);
+			for (int j = 0; j < feature_dim; j++) {
+				coord[s*seg_size + i][j] = output_c(i*(feature_dim+1) + j+1);
+			}
 		}
 	}
 	// (There are similar methods for vectors and matrices here:

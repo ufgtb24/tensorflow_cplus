@@ -11,6 +11,7 @@
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+
 #define MAX_NUM 14
 
 class Tensor;
@@ -50,11 +51,11 @@ public:
 private:
 	int len;
 	int image_size;
-
+	int seg_size,seg_num,mod_image_num;
 	unsigned char *cImage_all;
 	unsigned char *cImage;
 	map<Teeth_Group, Session*> sessions;
-	Tensor exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num);
+	vector<Tensor> exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num);
 };
 
 extern FEATURE_DETECT_API int nfeature_detect;

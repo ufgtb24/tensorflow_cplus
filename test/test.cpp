@@ -18,7 +18,7 @@ int checkGpuMem()
 	total_m = (int)(total_t / 1048576.0);
 
 	used_m = total_m - free_m;
-	cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
+	//cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
 	return used_m;
 }
 int main_1(int, char *[]) {
