@@ -51,7 +51,8 @@ public:
 private:
 	int len;
 	int image_size;
-	int seg_size,seg_num,mod_image_num;
+	int capacity_once,seg_size,seg_num,mod_image_num;
+	bool allocated;
 	unsigned char *cImage_all;
 	unsigned char *cImage;
 	map<Teeth_Group, Session*> sessions;

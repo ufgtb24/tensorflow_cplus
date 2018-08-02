@@ -18,10 +18,10 @@ int main(int, char *[])
 	vtkImageVec_up[0] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
 	vtkImageVec_up[1] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel3");
 	vtkImageVec_up[2] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel4");
-	vtkImageVec_up[3] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel5");
-	vtkImageVec_up[4] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel6");
-	vtkImageVec_up[5] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel7");
-	vtkImageVec_up[6] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel8");
+	//vtkImageVec_up[3] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel5");
+	//vtkImageVec_up[4] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel6");
+	//vtkImageVec_up[5] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel7");
+	//vtkImageVec_up[6] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel8");
 	//vtkImageVec_up[7] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
 	//vtkImageVec_up[8] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel3");
 	//vtkImageVec_up[9] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel4");
@@ -29,7 +29,7 @@ int main(int, char *[])
 	//vtkImageVec_up[11] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel6");
 	//vtkImageVec_up[12] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel7");
 	//vtkImageVec_up[13] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel8");
-	int up_num = 7;
+	int up_num = 3;
 
 	vtkImageVec_low[0] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel25");
 	vtkImageVec_low[1] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel26");
@@ -38,14 +38,14 @@ int main(int, char *[])
 	vtkImageVec_low[4] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel29");
 	vtkImageVec_low[5] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel30");
 	vtkImageVec_low[6] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel31");
-	vtkImageVec_low[7] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel25");
-	vtkImageVec_low[8] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel26");
-	vtkImageVec_low[9] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel27");
-	vtkImageVec_low[10] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel28");
-	vtkImageVec_low[11] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel29");
-	vtkImageVec_low[12] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel30");
-	vtkImageVec_low[13] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel31");
-	int low_num = 14;
+	//vtkImageVec_low[7] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel25");
+	//vtkImageVec_low[8] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel26");
+	//vtkImageVec_low[9] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel27");
+	//vtkImageVec_low[10] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel28");
+	//vtkImageVec_low[11] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel29");
+	//vtkImageVec_low[12] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel30");
+	//vtkImageVec_low[13] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel31");
+	int low_num = 7;
 
 
 	char* type_path[] = 
@@ -71,24 +71,24 @@ int main(int, char *[])
 
 
 
-	for (int i = 0; i < up_num; i++) {
-		cout <<"teeth_type is : "<< teethType[i] << endl;
-		for(int j=0;j<21;j++)
-			cout<<int(coord[i][j])<<"   ";
-		cout << endl;
-	}
+	//for (int i = 0; i < up_num; i++) {
+	//	cout <<"teeth_type is : "<< teethType[i] << endl;
+	//	for(int j=0;j<21;j++)
+	//		cout<<int(coord[i][j])<<"   ";
+	//	cout << endl;
+	//}
 
 	cout << endl<<"low detect------------------";
 	fd->detect(low, vtkImageVec_low, low_num, teethType, coord, 21);
 	int use_low = checkGpuMem() - use_0;
 	cout << "use_low:  " << use_low << endl;
 
-	for (int i = 0; i < low_num; i++) {
-		cout << "teeth_type is : " << teethType[i] << endl;
-		for (int j = 0; j<21; j++)
-			cout << int(coord[i][j]) << "   ";
-		cout << endl;
-	}
+	//for (int i = 0; i < low_num; i++) {
+	//	cout << "teeth_type is : " << teethType[i] << endl;
+	//	for (int j = 0; j<21; j++)
+	//		cout << int(coord[i][j]) << "   ";
+	//	cout << endl;
+	//}
 
 	delete fd;
 

@@ -33,7 +33,7 @@ int checkGpuMem()
 	total_m = (int)(total_t / 1048576.0);
 
 	used_m = total_m - free_m;
-	//cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
+	cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
 	return free_m;
 }
 
@@ -76,11 +76,7 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 		sessions[group_id[iter]] = session;
 
 	}
-
-	int f=checkGpuMem();
-	seg_size =ceil((f-284)/128.0);
-	cout <<"number of teeth in one segment: "<< seg_size << endl;
-	//:input_tensor(DT_FLOAT, TensorShape({ 1,w,h,d }))
+	allocated = false;
 	return;
 }
 
@@ -141,13 +137,23 @@ int Feature_detector::detect(Teeth_Group task_type,
 	int feature_dim) {
 	//len: the size of output,different features are concatatented to one whole,
 	//e.g. two features are consist of six element int the coord
-	if (imageNum < seg_size) { 
+	if (!allocated) {
+		int f = checkGpuMem();
+		//capacity_once =ceil((f-284)/128.0);
+
+		capacity_once = ceil((f - 284) / 128.0);
+		cout << "capacity of teeth calculated once: " << capacity_once << endl;
+		allocated = true;
+	}
+
+	if (imageNum < capacity_once) {
 		seg_size = imageNum; 
 		seg_num = 1;
 		mod_image_num = 0;
 	}
 	else {
-		seg_num = imageNum / seg_size;
+		seg_num = imageNum / capacity_once;
+		seg_size = capacity_once;
 		mod_image_num = imageNum%seg_size;
 		if (mod_image_num != 0)seg_num++;
 	}
@@ -167,9 +173,12 @@ int Feature_detector::detect(Teeth_Group task_type,
 
 		// The session will initialize the outputs
 		std::vector<tensorflow::Tensor> outputs;
+
+		cout << "before detect the free mem is: " << checkGpuMem() << endl;
 		// Run the session, evaluating our "c" operation from the graph
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
 		cout << "finish run session! " << endl;
+		cout << "after detect the free mem is: " << checkGpuMem() << endl;
 
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
