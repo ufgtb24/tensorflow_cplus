@@ -71,12 +71,11 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 			std::cout << status.ToString() << "\n";
 			return;
 		}
-
 		
 		sessions[group_id[iter]] = session;
 
 	}
-	allocated = false;
+	capacity_once = 4;
 	return;
 }
 
@@ -132,20 +131,9 @@ vector<Tensor> Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assig
 int Feature_detector::detect(Teeth_Group task_type,
 	vtkSmartPointer<vtkImageData> assignImages[],
 	int imageNum,
-	int* teeh_type,
 	float** coord,
 	int feature_dim) {
-	//len: the size of output,different features are concatatented to one whole,
-	//e.g. two features are consist of six element int the coord
-	if (!allocated) {
-		int f = checkGpuMem();
-		//capacity_once =ceil((f-284)/128.0);
-
-		capacity_once = ceil((f - 284) / 128.0);
-		cout << "capacity of teeth calculated once: " << capacity_once << endl;
-		allocated = true;
-	}
-
+	cout << "start detection\n";
 	if (imageNum < capacity_once) {
 		seg_size = imageNum; 
 		seg_num = 1;
@@ -173,12 +161,13 @@ int Feature_detector::detect(Teeth_Group task_type,
 
 		// The session will initialize the outputs
 		std::vector<tensorflow::Tensor> outputs;
+		cout << "before run session\n";
 
-		cout << "before detect the free mem is: " << checkGpuMem() << endl;
+		//cout << "before detect the free mem is: " << checkGpuMem() << endl;
 		// Run the session, evaluating our "c" operation from the graph
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
 		cout << "finish run session! " << endl;
-		cout << "after detect the free mem is: " << checkGpuMem() << endl;
+		//cout << "after detect the free mem is: " << checkGpuMem() << endl;
 
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -189,10 +178,8 @@ int Feature_detector::detect(Teeth_Group task_type,
 		auto output_c = outputs[0].flat<float>();
 		if (s == seg_num - 1 && mod_image_num != 0)sample_size = mod_image_num;
 		for (int i = 0; i < sample_size; i++) {
-			teeh_type[s*seg_size+i] = output_c(i*(feature_dim+1));
-
 			for (int j = 0; j < feature_dim; j++) {
-				coord[s*seg_size + i][j] = output_c(i*(feature_dim+1) + j+1);
+				coord[s*seg_size + i][j] = output_c(i*feature_dim + j);
 			}
 		}
 	}

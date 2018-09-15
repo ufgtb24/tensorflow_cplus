@@ -11,11 +11,10 @@
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
-
 #define MAX_NUM 14
 
-class Tensor;
-class Session;
+// class Tensor;
+// class Session;
 
 enum Teeth_Group
 {
@@ -41,7 +40,6 @@ public:
 		Teeth_Group group_id,
 		vtkSmartPointer<vtkImageData> assignImages[],
 		int teeth_num,
-		int* teeh_type_output,
 		float** coord_output,
 		int feature_size
 	);
@@ -52,7 +50,6 @@ private:
 	int len;
 	int image_size;
 	int capacity_once,seg_size,seg_num,mod_image_num;
-	bool allocated;
 	unsigned char *cImage_all;
 	unsigned char *cImage;
 	map<Teeth_Group, Session*> sessions;

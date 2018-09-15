@@ -21,6 +21,15 @@ int checkGpuMem()
 	//cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
 	return used_m;
 }
+
+enum Teeth_Group
+{
+	up = 0,
+	low = 1,
+};
+
 int main_1(int, char *[]) {
-	checkGpuMem();
+
+
+// 	checkGpuMem();
 }
