@@ -13,19 +13,14 @@ using namespace std;
 #include "vtkSmartPointer.h"
 #define MAX_NUM 14
 
- //class Tensor;
- //class Session;
+ class Tensor;
+ class Session;
 
 enum Teeth_Group
 {
 	up = 0, 
 	low = 1, 
 };
-
-class FEATURE_DETECT_API Feature_detector_dev {
-	Feature_detector_dev();
-}
-
 // This class is exported from the feature_detect.dll
 class FEATURE_DETECT_API Feature_detector {
 	/*
@@ -49,7 +44,6 @@ public:
 		int feature_size
 	);
 
-// 	bool CheckDevice();
 
 
 private:

@@ -1,35 +1,55 @@
 ﻿//#include <stdio.h>
-#include <cuda_runtime_api.h>
-#include <cuda.h>
+//#include <cuda_runtime_api.h>
+//#include <cuda.h>
 #include <iostream>
+
+#include "windows.h"
+#include "stdio.h"
+#include <cuda_runtime.h>
+
+//#include "include\ConsoleApplication2.h"
+
+
+
 using namespace std;
+
+
+
+int check_device() {
+	
+	int count;
+	cudaGetDeviceCount(&count);
+	cout << count <<endl;
+	getchar();
+	return count;
+
+}
+
+
+/*
 int checkGpuMem()
 
 {
-
+	loaddll();
 	float free_m, total_m, used_m;
 
 	size_t free_t, total_t;
 
-	cudaMemGetInfo(&free_t, &total_t);
+	cudaMemGetInfo(&free_t, &total_t);//unavailable for no lib imported
 	//(unsigned int)
 	free_m = (int)(free_t / 1048576.0);
 
 	total_m = (int)(total_t / 1048576.0);
 
 	used_m = total_m - free_m;
-	//cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
+	cout <<"\nfree_m:"<< free_m << "    total_m:" << total_m << "    used_m:" << used_m<<endl;
 	return used_m;
 }
+*/
 
-enum Teeth_Group
-{
-	up = 0,
-	low = 1,
-};
+int main(int, char *[]) {
 
-int main_1(int, char *[]) {
-
-
-// 	checkGpuMem();
+	check_device();
 }
+
+

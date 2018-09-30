@@ -6,4 +6,4 @@
 using namespace std;
 extern int dims[3];
 vtkSmartPointer<vtkImageData> loadmhd(std::string mhd_path);
-int checkGpuMem();
+//int checkGpuMem();

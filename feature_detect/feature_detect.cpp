@@ -2,6 +2,7 @@
 //
 #define COMPILER_MSVC
 #define NOMINMAX
+
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/platform/env.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -17,6 +18,7 @@ using namespace tensorflow;
 #include <cuda_runtime_api.h>
 #include <cuda.h>
 #include <iostream>
+
 using namespace std;
 int checkGpuMem()
 
@@ -50,7 +52,10 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 
 		Session* session;
 		SessionOptions session_options;
+		_putenv("CUDA_VISIBLE_DEVICES=""");
 		session_options.config.mutable_gpu_options()->set_allow_growth(true);
+// 		session_options.config.set_allow_soft_placement(true);
+
 		//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.7);
 		Status status = NewSession(session_options, &session);
 		if (!status.ok()) {
@@ -60,6 +65,7 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), group_path[iter], &graph_def);
+
 		if (!status.ok()) {
 
 			std::cout << status.ToString() << "\n";
@@ -75,7 +81,7 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 		sessions[group_id[iter]] = session;
 
 	}
-	capacity_once = 4;
+	capacity_once = 16;
 	return;
 }
 
@@ -85,8 +91,11 @@ Feature_detector::~Feature_detector() {
 
 	for (auto iter = sessions.cbegin(); iter != sessions.cend(); iter++)
 	{
+		cout << "start close session   ";
 		iter->second->Close();
+		cout << "finish close session   ";
 		delete iter->second;
+		cout << "delete sess obj   ";
 	}
 }
 
@@ -127,6 +136,16 @@ vector<Tensor> Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assig
 	return seg_tensors;
 }
 
+
+
+// bool Feature_detector::CheckDevice()
+// {
+// 	int count;
+// 	loaddll();
+// 	cudaGetDeviceCount(&count);
+// 	cout << count;
+// 	return count;
+// }
 
 int Feature_detector::detect(Teeth_Group task_type,
 	vtkSmartPointer<vtkImageData> assignImages[],
@@ -182,6 +201,7 @@ int Feature_detector::detect(Teeth_Group task_type,
 				coord[s*seg_size + i][j] = output_c(i*feature_dim + j);
 			}
 		}
+		cout << "assignment ";
 	}
 	// (There are similar methods for vectors and matrices here:
 	// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor.h)

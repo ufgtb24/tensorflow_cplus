@@ -13,34 +13,26 @@ using namespace std;
 #include "vtkSmartPointer.h"
 #define MAX_NUM 14
 
- //class Tensor;
- //class Session;
-
 enum Teeth_Group
 {
 	up = 0, 
 	low = 1, 
 };
-
-class FEATURE_DETECT_API Feature_detector_dev {
-	Feature_detector_dev();
-}
-
 // This class is exported from the feature_detect.dll
-class FEATURE_DETECT_API Feature_detector {
+class FEATURE_DETECT_API Feature_detector_cpu {
 	/*
 	Class aimming to detect the features for teeth belonging to a single arch.
 
 	*/
 public:
-	Feature_detector(
+	Feature_detector_cpu(
 		int box_size,
 		Teeth_Group group_id[],
 		char* group_path[],
 		int group_num
 	);
 
-	~Feature_detector();
+	~Feature_detector_cpu();
 	int detect(
 		Teeth_Group group_id,
 		vtkSmartPointer<vtkImageData> assignImages[],
@@ -49,7 +41,6 @@ public:
 		int feature_size
 	);
 
-// 	bool CheckDevice();
 
 
 private:

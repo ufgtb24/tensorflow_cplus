@@ -1,12 +1,13 @@
 # include "feature_detect.h"
-#include"test.h"
-#include <map>
+# include"test.h"
+# include <map>
 # include <iostream>
-
+# include <windows.h>
 using namespace std;
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 14
-int main(int, char *[])
+
+int main1(int, char *[])
 {
 	vtkSmartPointer<vtkImageData> vtkImageVec_up[71];
 	vtkSmartPointer<vtkImageData> vtkImageVec_low[14];
@@ -52,7 +53,8 @@ int main(int, char *[])
 
 
 	char* model_path[] = 
-	{"E://TensorFlowCplusplus//feature_detect//x64//Release//up_graph.pb",
+	{
+	  "E://TensorFlowCplusplus//feature_detect//x64//Release//up_graph.pb",
 	  "E://TensorFlowCplusplus//feature_detect//x64//Release//low_graph.pb"
 	};
 
@@ -63,14 +65,18 @@ int main(int, char *[])
 	for (int i = 0; i < MAX_NUM; i++) {
 		coord[i] = new float[21];
 	}
-	int use_0 = checkGpuMem();
-	cout << endl << "up detect------------------";
+	//int use_0 = checkGpuMem();
+	//cout << endl << "up detect------------------";
+	time_t start, stop;
+	start = timeGetTime();
+	fd->detect(up, vtkImageVec_up, up_num, coord, 27);
+	cout << " single arch finish";
+	fd->detect(low, vtkImageVec_up, up_num, coord, 27);
+	stop = timeGetTime();
+	printf("Use Time:%ld\n", (stop - start)/1000);
 
-	fd->detect(up, vtkImageVec_up,up_num, coord, 27);
-	int use_up = checkGpuMem() - use_0;
-	cout << "use_up:  "<< use_up << endl;
-
-
+	//int use_up = checkGpuMem() - use_0;
+	//cout << "use_up:  "<< use_up << endl;
 
 
 	for (int i = 0; i < up_num; i++) {
@@ -79,21 +85,5 @@ int main(int, char *[])
 		cout << endl;
 	}
 
-	//cout << endl<<"low detect------------------";
-	//fd->detect(low, vtkImageVec_low, low_num, teethType, coord, 21);
-	//int use_low = checkGpuMem() - use_0;
-	//cout << "use_low:  " << use_low << endl;
-
-	//for (int i = 0; i < low_num; i++) {
-	//	cout << "teeth_type is : " << teethType[i] << endl;
-	//	for (int j = 0; j<21; j++)
-	//		cout << int(coord[i][j]) << "   ";
-	//	cout << endl;
-	//}
-
-	delete fd;
-
-
-	//cout << endl;
 }
       
