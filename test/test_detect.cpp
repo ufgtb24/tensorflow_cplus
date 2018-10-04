@@ -1,4 +1,7 @@
+#pragma once
 # include "feature_detect.h"
+# include "feature_detect_cpu.h"
+# include "checkDevice.h"
 # include"test.h"
 # include <map>
 # include <iostream>
@@ -7,8 +10,11 @@ using namespace std;
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 14
 
-int main1(int, char *[])
+int main(int, char *[])
 {
+
+	Feature_detector_dev* fd;
+
 	vtkSmartPointer<vtkImageData> vtkImageVec_up[71];
 	vtkSmartPointer<vtkImageData> vtkImageVec_low[14];
 	//vtkSmartPointer<vtkImageData> tmp= loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel3");
@@ -60,7 +66,12 @@ int main1(int, char *[])
 
 	Teeth_Group model_id[] = { up,low};
 
-	Feature_detector* fd = new Feature_detector(128, model_id,model_path,2);
+	if (!checkDevice())
+		fd = new Feature_detector(128, model_id, model_path, 2);
+
+  	else
+  		fd = new Feature_detector_cpu(128, model_id, model_path, 2);
+
 	float** coord = new float*[MAX_NUM];
 	for (int i = 0; i < MAX_NUM; i++) {
 		coord[i] = new float[21];
@@ -70,7 +81,7 @@ int main1(int, char *[])
 	time_t start, stop;
 	start = timeGetTime();
 	fd->detect(up, vtkImageVec_up, up_num, coord, 27);
-	cout << " single arch finish";
+	cout << " single arch finish \n";
 	fd->detect(low, vtkImageVec_up, up_num, coord, 27);
 	stop = timeGetTime();
 	printf("Use Time:%ld\n", (stop - start)/1000);
@@ -84,6 +95,6 @@ int main1(int, char *[])
 			cout<<int(coord[i][j])<<"   ";
 		cout << endl;
 	}
-
+	return 0;
 }
       

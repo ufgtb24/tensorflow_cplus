@@ -11,15 +11,14 @@
 using namespace std;
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#include "feature_detect_dev.h"
 #define MAX_NUM 14
 
-enum Teeth_Group
-{
-	up = 0, 
-	low = 1, 
-};
+class Tensor;
+class Session;
+
 // This class is exported from the feature_detect.dll
-class FEATURE_DETECT_API Feature_detector_cpu {
+class FEATURE_DETECT_API Feature_detector_cpu:public Feature_detector_dev {
 	/*
 	Class aimming to detect the features for teeth belonging to a single arch.
 

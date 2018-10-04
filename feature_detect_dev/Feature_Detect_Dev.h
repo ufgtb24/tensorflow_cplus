@@ -26,7 +26,6 @@ class FEATURE_DETECT_DEV_API Feature_Detect_Dev {
 private:
 	Feature_Detect* Fd;
 	Feature_detector_cpu* Fd_c;
-	bool check_device();
 
 public:
 	int detect(

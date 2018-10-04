@@ -21,6 +21,12 @@
     <ClInclude Include="feature_detect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="feature_detect_dev.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="checkDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="feature_detect.cpp">
