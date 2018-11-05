@@ -2,7 +2,7 @@
 //
 #define COMPILER_MSVC
 #define NOMINMAX
-#include "feature_detect.h"
+#include "feature_detect_gpu.h"
 
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/platform/env.h"
@@ -43,7 +43,7 @@ using namespace std;
 
 
 
-Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
+Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
 	cImage_all = new unsigned char[MAX_NUM * image_size];
@@ -82,11 +82,11 @@ Feature_detector::Feature_detector(int len, Teeth_Group group_id[],char* group_p
 		sessions[group_id[iter]] = session;
 
 	}
-	capacity_once = 16;
+	capacity_once = 4;
 	return;
 }
 
-Feature_detector::~Feature_detector() {
+Feature_detector_gpu::~Feature_detector_gpu() {
 	delete[] cImage_all;
 	delete[] cImage;
 
@@ -102,7 +102,7 @@ Feature_detector::~Feature_detector() {
 
 
 
-vector<Tensor> Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
+vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
 
 {
 	vtkSmartPointer<vtkImageExport> exporter =
@@ -148,7 +148,7 @@ vector<Tensor> Feature_detector::exportImage(vtkSmartPointer<vtkImageData> assig
 // 	return count;
 // }
 
-int Feature_detector::detect(Teeth_Group task_type,
+int Feature_detector_gpu::detect(Teeth_Group task_type,
 	vtkSmartPointer<vtkImageData> assignImages[],
 	int imageNum,
 	float** coord,
@@ -181,13 +181,12 @@ int Feature_detector::detect(Teeth_Group task_type,
 
 		// The session will initialize the outputs
 		std::vector<tensorflow::Tensor> outputs;
-		cout << "before run session\n";
+		cout << "before run session!\n";
 
 		//cout << "before detect the free mem is: " << checkGpuMem() << endl;
-		// Run the session, evaluating our "c" operation from the graph
+
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
-		cout << "finish run session! " << endl;
-		//cout << "after detect the free mem is: " << checkGpuMem() << endl;
+		cout << "finish run session!\n " << endl;
 
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -202,7 +201,6 @@ int Feature_detector::detect(Teeth_Group task_type,
 				coord[s*seg_size + i][j] = output_c(i*feature_dim + j);
 			}
 		}
-		cout << "assignment ";
 	}
 	// (There are similar methods for vectors and matrices here:
 	// https://github.com/tensorflow/tensorflow/blob/master/tensorflow/core/public/tensor.h)
@@ -215,6 +213,18 @@ int Feature_detector::detect(Teeth_Group task_type,
 }
 
 
-
+extern "C" __declspec(dllexport) Feature_detector* getFDObj(
+	int box_size,
+	Teeth_Group group_id[],
+	char* group_path[],
+	int group_num
+)
+{
+	return new Feature_detector_gpu(box_size,
+		 group_id,
+		 group_path,
+		 group_num
+	);
+}
 
 

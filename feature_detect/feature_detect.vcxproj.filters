@@ -18,24 +18,24 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="checkDevice.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
     <ClInclude Include="feature_detect.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="feature_detect_dev.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="checkDevice.h">
+    <ClInclude Include="feature_detect_gpu.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="feature_detect.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Source.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="feature_detect_gpu.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

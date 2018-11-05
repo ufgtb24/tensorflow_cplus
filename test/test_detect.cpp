@@ -1,6 +1,6 @@
 #pragma once
 # include "feature_detect.h"
-# include "feature_detect_cpu.h"
+// # include "feature_detect_cpu.h"
 # include "checkDevice.h"
 # include"test.h"
 # include <map>
@@ -10,10 +10,34 @@ using namespace std;
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 14
 
+
+Feature_detector* get_FD_Obj(int box_size,
+	Teeth_Group group_id[],
+	char* group_path[],
+	int group_num,
+	LPCSTR dllpath
+// 	LPCWSTR dllpath
+	) {
+
+	typedef Feature_detector*(*lpAddFun)(int box_size,
+		Teeth_Group group_id[],
+		char* group_path[],
+		int group_num); //宏定义函数指针类型
+
+	HINSTANCE hDll; //DLL句柄 
+	hDll = LoadLibrary(dllpath);
+
+	if (hDll == NULL) {
+		int dwError = GetLastError();
+		cout << "load failed \n" << dwError;
+	}
+	lpAddFun getFDObj = (lpAddFun)GetProcAddress(hDll, "getFDObj");
+	return getFDObj(box_size, group_id, group_path, group_num);
+}
+
 int main(int, char *[])
 {
 
-	Feature_detector_dev* fd;
 
 	vtkSmartPointer<vtkImageData> vtkImageVec_up[71];
 	vtkSmartPointer<vtkImageData> vtkImageVec_low[14];
@@ -27,34 +51,6 @@ int main(int, char *[])
 		vtkImageVec_up[i] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
 
 	}
-	//vtkImageVec_up[1] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel3");
-	//vtkImageVec_up[2] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel4");
-	//vtkImageVec_up[3] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel5");
-	//vtkImageVec_up[4] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel6");
-	//vtkImageVec_up[5] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel7");
-	//vtkImageVec_up[6] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel8");
-	//vtkImageVec_up[7] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
-	//vtkImageVec_up[8] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel3");
-	//vtkImageVec_up[9] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel4");
-	//vtkImageVec_up[10] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel5");
-	//vtkImageVec_up[11] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel6");
-	//vtkImageVec_up[12] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel7");
-	//vtkImageVec_up[13] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel8");
-
-	//vtkImageVec_low[0] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel25");
-	//vtkImageVec_low[1] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel26");
-	//vtkImageVec_low[2] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel27");
-	//vtkImageVec_low[3] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel28");
-	//vtkImageVec_low[4] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel29");
-	//vtkImageVec_low[5] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel30");
-	//vtkImageVec_low[6] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel31");
-	//vtkImageVec_low[7] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel25");
-	//vtkImageVec_low[8] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel26");
-	//vtkImageVec_low[9] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel27");
-	//vtkImageVec_low[10] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel28");
-	//vtkImageVec_low[11] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel29");
-	//vtkImageVec_low[12] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel30");
-	//vtkImageVec_low[13] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel31");
 	int low_num = 7;
 
 
@@ -65,15 +61,34 @@ int main(int, char *[])
 	};
 
 	Teeth_Group model_id[] = { up,low};
+/*
+	typedef Feature_detector_gpu*(*lpAddFun)(int box_size,
+		Teeth_Group group_id[],
+		char* group_path[],
+		int group_num
+		); //宏定义函数指针类型
 
-	if (!checkDevice())
-		fd = new Feature_detector(128, model_id, model_path, 2);
+	HINSTANCE hDll; //DLL句柄 
+	hDll = LoadLibrary(L"feature_detect.dll");
 
-  	else
-  		fd = new Feature_detector_cpu(128, model_id, model_path, 2);
+	if (hDll == NULL) {
+		int dwError = GetLastError();
+		cout << "load failed \n"<< dwError;
+	}
+	lpAddFun getFDObj = (lpAddFun)GetProcAddress(hDll, "getFDObj");
+	Feature_detector_gpu* fd_gpu=getFDObj(128, model_id, model_path, 2);
+	*/
 
-	float** coord = new float*[MAX_NUM];
-	for (int i = 0; i < MAX_NUM; i++) {
+	Feature_detector* fd = get_FD_Obj(128, model_id, model_path, 2, "feature_detect_cpu.dll");
+
+// 	if (!checkDevice())
+// 		fd = new Feature_detector(128, model_id, model_path, 2);
+// 
+//   	else
+//   		fd = new Feature_detector_cpu(128, model_id, model_path, 2);
+
+	float** coord = new float*[up_num];
+	for (int i = 0; i < up_num; i++) {
 		coord[i] = new float[21];
 	}
 	//int use_0 = checkGpuMem();
