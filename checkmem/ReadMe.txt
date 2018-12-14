@@ -1,27 +1,27 @@
 ========================================================================
-    DYNAMIC LINK LIBRARY : feature_detect_dev Project Overview
+    DYNAMIC LINK LIBRARY : checkmem Project Overview
 ========================================================================
 
-AppWizard has created this feature_detect_dev DLL for you.
+AppWizard has created this checkmem DLL for you.
 
 This file contains a summary of what you will find in each of the files that
-make up your feature_detect_dev application.
+make up your checkmem application.
 
 
-feature_detect_dev.vcxproj
+checkmem.vcxproj
     This is the main project file for VC++ projects generated using an Application Wizard.
     It contains information about the version of Visual C++ that generated the file, and
     information about the platforms, configurations, and project features selected with the
     Application Wizard.
 
-feature_detect_dev.vcxproj.filters
+checkmem.vcxproj.filters
     This is the filters file for VC++ projects generated using an Application Wizard. 
     It contains information about the association between the files in your project 
     and the filters. This association is used in the IDE to show grouping of files with
     similar extensions under a specific node (for e.g. ".cpp" files are associated with the
     "Source Files" filter).
 
-feature_detect_dev.cpp
+checkmem.cpp
     This is the main DLL source file.
 
 /////////////////////////////////////////////////////////////////////////////
@@ -29,7 +29,7 @@ Other standard files:
 
 StdAfx.h, StdAfx.cpp
     These files are used to build a precompiled header (PCH) file
-    named feature_detect_dev.pch and a precompiled types file named StdAfx.obj.
+    named checkmem.pch and a precompiled types file named StdAfx.obj.
 
 /////////////////////////////////////////////////////////////////////////////
 Other notes:

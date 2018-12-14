@@ -1,5 +1,5 @@
 // stdafx.cpp : source file that includes just the standard includes
-// feature_detect_dev.pch will be the pre-compiled header
+// checkmem.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
 
 #include "stdafx.h"

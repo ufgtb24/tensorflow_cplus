@@ -1,11 +1,11 @@
 #pragma once
 # include "feature_detect.h"
 // # include "feature_detect_cpu.h"
-# include "checkDevice.h"
 # include"test.h"
 # include <map>
 # include <iostream>
 # include <windows.h>
+# include "checkDevice.h"
 using namespace std;
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 14
@@ -47,12 +47,10 @@ int main(int, char *[])
 	//}
 	int up_num = 14;
 	for (int i = 0; i < up_num; i++) {
-
 		vtkImageVec_up[i] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
-
 	}
-	int low_num = 7;
 
+	int low_num = 7;
 
 	char* model_path[] = 
 	{
@@ -61,25 +59,16 @@ int main(int, char *[])
 	};
 
 	Teeth_Group model_id[] = { up,low};
-/*
-	typedef Feature_detector_gpu*(*lpAddFun)(int box_size,
-		Teeth_Group group_id[],
-		char* group_path[],
-		int group_num
-		); //宏定义函数指针类型
+	LPCSTR dllpath;
+	if (checkDevice()) 
+		dllpath = "feature_detect.dll";
+	else
+		dllpath = "feature_detect_cpu.dll";
 
-	HINSTANCE hDll; //DLL句柄 
-	hDll = LoadLibrary(L"feature_detect.dll");
+	cout <<"dllpath = "<< dllpath << endl;
 
-	if (hDll == NULL) {
-		int dwError = GetLastError();
-		cout << "load failed \n"<< dwError;
-	}
-	lpAddFun getFDObj = (lpAddFun)GetProcAddress(hDll, "getFDObj");
-	Feature_detector_gpu* fd_gpu=getFDObj(128, model_id, model_path, 2);
-	*/
+	Feature_detector* fd = get_FD_Obj(128, model_id, model_path, 2, dllpath);
 
-	Feature_detector* fd = get_FD_Obj(128, model_id, model_path, 2, "feature_detect_cpu.dll");
 
 // 	if (!checkDevice())
 // 		fd = new Feature_detector(128, model_id, model_path, 2);
@@ -97,7 +86,7 @@ int main(int, char *[])
 	start = timeGetTime();
 	fd->detect(up, vtkImageVec_up, up_num, coord, 27);
 	cout << " single arch finish \n";
-	fd->detect(low, vtkImageVec_up, up_num, coord, 27);
+// 	fd->detect(low, vtkImageVec_up, up_num, coord, 27);
 	stop = timeGetTime();
 	printf("Use Time:%ld\n", (stop - start)/1000);
 

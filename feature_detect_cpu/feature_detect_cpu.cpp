@@ -2,8 +2,6 @@
 //
 #define COMPILER_MSVC
 #define NOMINMAX
-#include "feature_detect_gpu.h"
-
 #include "tensorflow/core/public/session.h"
 #include "tensorflow/core/platform/env.h"
 #include "tensorflow/core/framework/tensor.h"
@@ -11,18 +9,16 @@
 #include "tensorflow/c/c_api_internal.h"
 #include "tensorflow/cc/ops/array_ops.h"
 using namespace tensorflow;
-
-
-
+#include "feature_detect_cpu.h"
 #include "vtkSmartPointer.h"
 #include "vtkImageData.h"
 #include <vtkImageExport.h>
 #include <math.h>
 #include <iostream>
-#include <checkDevice.h>
+using namespace std;
 
 
-Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
+Feature_detector_cpu::Feature_detector_cpu(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
 	cImage_all = new unsigned char[MAX_NUM * image_size];
@@ -32,10 +28,7 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 
 		Session* session;
 		SessionOptions session_options;
-		_putenv("CUDA_VISIBLE_DEVICES=""");
 		session_options.config.mutable_gpu_options()->set_allow_growth(true);
-// 		session_options.config.set_allow_soft_placement(true);
-
 		//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.7);
 		Status status = NewSession(session_options, &session);
 		if (!status.ok()) {
@@ -45,7 +38,6 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 
 		GraphDef graph_def;
 		status = ReadBinaryProto(Env::Default(), group_path[iter], &graph_def);
-
 		if (!status.ok()) {
 
 			std::cout << status.ToString() << "\n";
@@ -61,31 +53,24 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 		sessions[group_id[iter]] = session;
 
 	}
-	int f = checkGpuMem();
-	capacity_once = ceil((f - 284) / 128.0);
-	cout << "capacity_once= " << capacity_once << endl;
-
-// 	capacity_once = 4;
+	capacity_once = 4;
 	return;
 }
 
-Feature_detector_gpu::~Feature_detector_gpu() {
+Feature_detector_cpu::~Feature_detector_cpu() {
 	delete[] cImage_all;
 	delete[] cImage;
 
 	for (auto iter = sessions.cbegin(); iter != sessions.cend(); iter++)
 	{
-		cout << "start close session   ";
 		iter->second->Close();
-		cout << "finish close session   ";
 		delete iter->second;
-		cout << "delete sess obj   ";
 	}
 }
 
 
 
-vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
+vector<Tensor> Feature_detector_cpu::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
 
 {
 	vtkSmartPointer<vtkImageExport> exporter =
@@ -111,6 +96,8 @@ vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> a
 			sample_size = mod_image_num;
 		}
 		const int64_t tensorDims[5] = { sample_size,len,len,len,1 };
+
+
 		TF_Tensor*  tftensor = TF_NewTensor(TF_DataType::TF_UINT8, tensorDims, 5,
 		cImage_all+s*seg_size*image_size, sample_size*image_size,
 		NULL, imNumPt);
@@ -121,17 +108,7 @@ vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> a
 }
 
 
-
-// bool Feature_detector::CheckDevice()
-// {
-// 	int count;
-// 	loaddll();
-// 	cudaGetDeviceCount(&count);
-// 	cout << count;
-// 	return count;
-// }
-
-int Feature_detector_gpu::detect(Teeth_Group task_type,
+int Feature_detector_cpu::detect(Teeth_Group task_type,
 	vtkSmartPointer<vtkImageData> assignImages[],
 	int imageNum,
 	float** coord,
@@ -164,12 +141,13 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 
 		// The session will initialize the outputs
 		std::vector<tensorflow::Tensor> outputs;
-		cout << "before run session!\n";
+		cout << "before run session\n";
 
 		//cout << "before detect the free mem is: " << checkGpuMem() << endl;
-
+		// Run the session, evaluating our "c" operation from the graph
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
-		cout << "finish run session!\n " << endl;
+		cout << "finish run session! " << endl;
+		//cout << "after detect the free mem is: " << checkGpuMem() << endl;
 
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -203,10 +181,10 @@ extern "C" __declspec(dllexport) Feature_detector* getFDObj(
 	int group_num
 )
 {
-	return new Feature_detector_gpu(box_size,
-		 group_id,
-		 group_path,
-		 group_num
+	return new Feature_detector_cpu(box_size,
+		group_id,
+		group_path,
+		group_num
 	);
 }
 

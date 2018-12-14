@@ -27,30 +27,3 @@ public:
 };
 
 
-//class  Feature_detector_gpu:public Feature_detector {
-//
-//public:
-//	virtual int  detect(
-//		Teeth_Group group_id,
-//		vtkSmartPointer<vtkImageData> assignImages[],
-//		int teeth_num,
-//		float** coord_output,
-//		int feature_size
-//	) = 0;
-//
-//};
-//
-//class  Feature_detector_cpu :public Feature_detector {
-//
-//public:
-//	virtual int  detect(
-//		Teeth_Group group_id,
-//		vtkSmartPointer<vtkImageData> assignImages[],
-//		int teeth_num,
-//		float** coord_output,
-//		int feature_size
-//	) = 0;
-//
-//};
-
-
