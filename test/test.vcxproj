@@ -141,8 +141,8 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>E:\UlabVTK\aftermake\bin_lib\release\include\vtk-7.1;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include;E:\TensorFlowCplusplus\feature_detect\feature_detect;E:\TensorFlowCplusplus\feature_detect\checkmem;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>E:\UlabVTK\aftermake\bin_lib\release\include\vtk-7.1;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\include;E:\TensorFlowCplusplus\feature_detect\feature_detect;E:\TensorFlowCplusplus\feature_detect\checkmem;E:\TensorFlowCplusplus\TeethDetect\TeethDetect_GPU;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -172,6 +172,9 @@
     </ProjectReference>
     <ProjectReference Include="..\feature_detect\feature_detect.vcxproj">
       <Project>{436cd68d-c459-4987-91ee-925ca8b9c914}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\feature_detect_cpu\feature_detect_cpu.vcxproj">
+      <Project>{9f73eb91-ede5-4b1b-8f5a-be7eeee9a1ae}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

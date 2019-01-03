@@ -174,7 +174,7 @@ int Feature_detector_cpu::detect(Teeth_Group task_type,
 }
 
 
-extern "C" __declspec(dllexport) Feature_detector* getFDObj(
+extern "C" __declspec(dllexport) Feature_detector* getObj(
 	int box_size,
 	Teeth_Group group_id[],
 	char* group_path[],

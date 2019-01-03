@@ -27,6 +27,7 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 {
 	cImage_all = new unsigned char[MAX_NUM * image_size];
 	cImage = new unsigned char[image_size];
+	int f = checkGpuMem();
 	for (int iter=0; iter<group_num; iter++)
 	{
 
@@ -61,11 +62,11 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 		sessions[group_id[iter]] = session;
 
 	}
-	int f = checkGpuMem();
-	capacity_once = ceil((f - 284) / 128.0);
-	cout << "capacity_once= " << capacity_once << endl;
+	f = checkGpuMem();
+// 	capacity_once = ceil((f - 284) / 128.0);
+// 	cout << "capacity_once= " << capacity_once << endl;
 
-// 	capacity_once = 4;
+	capacity_once = 1;
 	return;
 }
 
@@ -164,12 +165,12 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 
 		// The session will initialize the outputs
 		std::vector<tensorflow::Tensor> outputs;
-		cout << "before run session!\n";
+// 		cout << "before run session!\n";
 
 		//cout << "before detect the free mem is: " << checkGpuMem() << endl;
 
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
-		cout << "finish run session!\n " << endl;
+// 		cout << "finish run session!\n " << endl;
 
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -196,7 +197,7 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 }
 
 
-extern "C" __declspec(dllexport) Feature_detector* getFDObj(
+extern "C" __declspec(dllexport) Feature_detector* getObj(
 	int box_size,
 	Teeth_Group group_id[],
 	char* group_path[],
