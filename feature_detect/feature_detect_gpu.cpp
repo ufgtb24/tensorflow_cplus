@@ -27,7 +27,7 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 {
 	cImage_all = new unsigned char[MAX_NUM * image_size];
 	cImage = new unsigned char[image_size];
-	int f = checkGpuMem();
+// 	int f = checkGpuMem();
 	for (int iter=0; iter<group_num; iter++)
 	{
 
@@ -62,7 +62,7 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 		sessions[group_id[iter]] = session;
 
 	}
-	f = checkGpuMem();
+// 	f = checkGpuMem();
 // 	capacity_once = ceil((f - 284) / 128.0);
 // 	cout << "capacity_once= " << capacity_once << endl;
 

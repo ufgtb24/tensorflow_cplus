@@ -102,8 +102,9 @@ int main(int, char *[])
 	};
 
 	Teeth_Group model_id[] = { up,low};
-	LPCSTR dllpath;
-	if (checkDevice()) 
+// 	LPCSTR dllpath;
+	char* dllpath;
+	if (checkDevice())
 		dllpath = "feature_detect.dll";
 	else
 		dllpath = "feature_detect_cpu.dll";
