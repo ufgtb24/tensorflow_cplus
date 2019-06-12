@@ -6,33 +6,20 @@
 # include <iostream>
 # include <windows.h>
 # include "checkDevice.h"
-#include "Teeth_Detector.h"
 using namespace std;
 #define IMAGE_NUM_UP 14
 #define IMAGE_NUM_LOW 14
 
-Teeth_Detector* get_TD_Obj(char* graph_path, LPCSTR dllpath
-) {
-	typedef Teeth_Detector*(*loadFun)(char* graph_path); //宏定义函数指针类型
-	HINSTANCE hDll; //DLL句柄 
-	cout << "\n inside  :  " << dllpath << endl;
-	hDll = LoadLibrary(dllpath);
 
-	if (hDll == NULL) {
-		int dwError = GetLastError();
-		cout << "load failed \n" << dwError;
-	}
-	loadFun getObj = (loadFun)GetProcAddress(hDll, "getObj");
-	return getObj(graph_path);
-}
+
 
 Feature_detector* get_FD_Obj(int box_size,
 	Teeth_Group group_id[],
 	char* group_path[],
 	int group_num,
 	LPCSTR dllpath
-// 	LPCWSTR dllpath
-	) {
+	// 	LPCWSTR dllpath
+) {
 
 	typedef Feature_detector*(*lpAddFun)(int box_size,
 		Teeth_Group group_id[],
@@ -91,7 +78,7 @@ int main(int, char *[])
 	//}
 	int up_num = 14;
 	for (int i = 0; i < up_num; i++) {
-		vtkImageVec_up[i] = loadmhd("F://ProjectData//tmp//saved_mhd//_$GR117Final//toothLabel2");
+		vtkImageVec_up[i] = loadmhd("F://ProjectData//feature_detect//saved_mhd//_$GR117Final//toothLabel2");
 	}
 
 
