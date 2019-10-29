@@ -78,7 +78,7 @@ int main(int, char *[])
 	//}
 	int up_num = 14;
 	for (int i = 0; i < up_num; i++) {
-		vtkImageVec_up[i] = loadmhd("F://ProjectData//feature_detect//saved_mhd//_$GR117Final//toothLabel2");
+		vtkImageVec_up[i] = loadmhd("F://ProjectData//feature_detect//as test//tooth18//toothLabel18_1_1_1");
 	}
 
 
@@ -91,6 +91,8 @@ int main(int, char *[])
 	Teeth_Group model_id[] = { up,low};
 // 	LPCSTR dllpath;
 	char* dllpath;
+	bool use_gpu = true;
+	//if (use_gpu)
 	if (checkDevice())
 		dllpath = "feature_detect.dll";
 	else

@@ -21,6 +21,8 @@ using namespace std;
 Feature_detector_cpu::Feature_detector_cpu(int len, Teeth_Group group_id[],char* group_path[],int group_num) :
 	len(len), image_size(len*len*len)
 {
+	cout << "start Feature_detector_cpu initialization!!\n";
+
 	cImage_all = new unsigned char[MAX_NUM * image_size];
 	cImage = new unsigned char[image_size];
 	for (int iter=0; iter<group_num; iter++)
@@ -54,6 +56,7 @@ Feature_detector_cpu::Feature_detector_cpu(int len, Teeth_Group group_id[],char*
 
 	}
 	capacity_once = 4;
+	cout << "finish Feature_detector_cpu initialization!!\n";
 	return;
 }
 
@@ -73,6 +76,8 @@ Feature_detector_cpu::~Feature_detector_cpu() {
 vector<Tensor> Feature_detector_cpu::exportImage(vtkSmartPointer<vtkImageData> assignImage[],int num)
 
 {
+	cout << "start exportImage!!\n";
+
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
 	for (int iter = 0; iter <num; iter++)
@@ -104,6 +109,8 @@ vector<Tensor> Feature_detector_cpu::exportImage(vtkSmartPointer<vtkImageData> a
 
 		seg_tensors.push_back(TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer));
 	}
+	cout << "finish exportImage!!\n";
+
 	return seg_tensors;
 }
 
