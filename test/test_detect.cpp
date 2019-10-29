@@ -79,7 +79,7 @@ int main(int, char *[])
 	int up_num = 14;
 	for (int i = 0; i < up_num; i++) {
 		vtkImageVec_up[i] = loadmhd(
-			"E://TensorFlowCplusplus//feature_detect//x64//Release//test_data//tooth.mhd");
+			"F://ProjectData//feature_detect//as test//tooth18//toothLabel18_1_1_1.mhd");
 	}
 
 
