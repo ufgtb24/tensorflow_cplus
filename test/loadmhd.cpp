@@ -20,30 +20,11 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 
 vtkSmartPointer<vtkImageData> loadmhd(std::string mhd_path)
 {
-	// adapt path !
-	std::string filePath = mhd_path+".mhd";
-	std::string filePathRaw = mhd_path+".raw";
-	//// Create an image
-	//vtkSmartPointer<vtkImageMandelbrotSource> source =
-	//	vtkSmartPointer<vtkImageMandelbrotSource>::New();
-
-	//vtkSmartPointer<vtkImageCast> castFilter =
-	//	vtkSmartPointer<vtkImageCast>::New();
-	//castFilter->SetOutputScalarTypeToUnsignedChar();
-	//castFilter->SetInputConnection(source->GetOutputPort());
-	//castFilter->Update();
-
-	//vtkSmartPointer<vtkMetaImageWriter> writer =
-	//	vtkSmartPointer<vtkMetaImageWriter>::New();
-	//writer->SetInputConnection(castFilter->GetOutputPort());
-	//writer->SetFileName(filePath.c_str());
-	//writer->SetRAWFileName(filePathRaw.c_str());
-	//writer->Write();
 
 	// Read and display file for verification that it was written correctly
 	vtkSmartPointer<vtkMetaImageReader> reader =
 		vtkSmartPointer<vtkMetaImageReader>::New();
-	reader->SetFileName(filePath.c_str());
+	reader->SetFileName(mhd_path.c_str());
 	reader->Update();
 
 	vtkSmartPointer<vtkImageData>  image = reader->GetOutput();
