@@ -18,7 +18,7 @@ namespace tensorflow {
 	class Tensor;
 	class Session;
 }
-//
+
 
 // This class is exported from the feature_detect.dll
 class FEATURE_DETECT_API Feature_detector_cpu :public Feature_detector {

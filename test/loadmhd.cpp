@@ -18,58 +18,17 @@ VTK_MODULE_INIT(vtkInteractionStyle);
 #include <vtkImageMandelbrotSource.h>
 #include <vtkImageActor.h>
 
-vtkSmartPointer<vtkImageData> loadmhd(std::string mhd_path)
+vtkSmartPointer<vtkImageData> loadmhd(std::string mhdPath)
 {
 	// adapt path !
-	std::string filePath = mhd_path+".mhd";
-	std::string filePathRaw = mhd_path+".raw";
-	//// Create an image
-	//vtkSmartPointer<vtkImageMandelbrotSource> source =
-	//	vtkSmartPointer<vtkImageMandelbrotSource>::New();
-
-	//vtkSmartPointer<vtkImageCast> castFilter =
-	//	vtkSmartPointer<vtkImageCast>::New();
-	//castFilter->SetOutputScalarTypeToUnsignedChar();
-	//castFilter->SetInputConnection(source->GetOutputPort());
-	//castFilter->Update();
-
-	//vtkSmartPointer<vtkMetaImageWriter> writer =
-	//	vtkSmartPointer<vtkMetaImageWriter>::New();
-	//writer->SetInputConnection(castFilter->GetOutputPort());
-	//writer->SetFileName(filePath.c_str());
-	//writer->SetRAWFileName(filePathRaw.c_str());
-	//writer->Write();
-
+	//std::string filePathRaw = mhd_path+".raw";
 	// Read and display file for verification that it was written correctly
 	vtkSmartPointer<vtkMetaImageReader> reader =
 		vtkSmartPointer<vtkMetaImageReader>::New();
-	reader->SetFileName(filePath.c_str());
+	reader->SetFileName(mhdPath.c_str());
 	reader->Update();
 
 	vtkSmartPointer<vtkImageData>  image = reader->GetOutput();
-
-	//vtkSmartPointer<vtkImageActor> actor =
-	//	vtkSmartPointer<vtkImageActor>::New();
-
-	//actor->GetMapper()->SetInputConnection(reader->GetOutputPort());
-
-	//vtkSmartPointer<vtkRenderer> renderer =
-	//	vtkSmartPointer<vtkRenderer>::New();
-	//vtkSmartPointer<vtkRenderWindow> renderWindow =
-	//	vtkSmartPointer<vtkRenderWindow>::New();
-	//renderWindow->AddRenderer(renderer);
-	//vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
-	//	vtkSmartPointer<vtkRenderWindowInteractor>::New();
-	//renderWindowInteractor->SetRenderWindow(renderWindow);
-
-	//renderer->AddActor(actor);
-	//renderer->SetBackground(.2, .3, .4);
-
-	//renderWindow->Render();
-	//renderWindowInteractor->Start();
-
-
-
 
 	return image;
 }

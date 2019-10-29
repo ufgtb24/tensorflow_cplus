@@ -19,7 +19,6 @@ using namespace tensorflow;
 #include <vtkImageExport.h>
 #include <math.h>
 #include <iostream>
-#include <checkDevice.h>
 
 
 Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char* group_path[],int group_num) :

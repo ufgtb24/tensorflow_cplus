@@ -78,7 +78,8 @@ int main(int, char *[])
 	//}
 	int up_num = 14;
 	for (int i = 0; i < up_num; i++) {
-		vtkImageVec_up[i] = loadmhd("F://ProjectData//feature_detect//saved_mhd//_$GR117Final//toothLabel2");
+		vtkImageVec_up[i] = loadmhd(
+			"E://TensorFlowCplusplus//feature_detect//x64//Release//test_data//tooth.mhd");
 	}
 
 
@@ -91,7 +92,9 @@ int main(int, char *[])
 	Teeth_Group model_id[] = { up,low};
 // 	LPCSTR dllpath;
 	char* dllpath;
-	if (checkDevice())
+	bool use_gpu = true;
+	//if (checkDevice())
+	if (use_gpu)
 		dllpath = "feature_detect.dll";
 	else
 		dllpath = "feature_detect_cpu.dll";
