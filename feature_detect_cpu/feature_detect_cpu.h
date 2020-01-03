@@ -13,7 +13,6 @@
 #include <string>
 #include <map>
 using namespace std;
-#define MAX_NUM 14
 namespace tensorflow {
 	class Tensor;
 	class Session;

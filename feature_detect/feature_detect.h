@@ -6,6 +6,7 @@
 // #endif
 #include "vtkImageData.h"
 #include "vtkSmartPointer.h"
+#define MAX_NUM 14
 
 enum Teeth_Group
 {

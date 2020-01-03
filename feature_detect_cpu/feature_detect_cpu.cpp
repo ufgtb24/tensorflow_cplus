@@ -159,6 +159,8 @@ int Feature_detector_cpu::detect(Teeth_Group task_type,
 		if (s == seg_num - 1 && mod_image_num != 0)sample_size = mod_image_num;
 		for (int i = 0; i < sample_size; i++) {
 			for (int j = 0; j < feature_dim; j++) {
+				if (output_c(i * feature_dim + j) > 1000)
+					return 1;
 				coord[s*seg_size + i][j] = output_c(i*feature_dim + j);
 			}
 		}

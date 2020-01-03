@@ -27,6 +27,10 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 	cImage_all = new unsigned char[MAX_NUM * image_size];
 	cImage = new unsigned char[image_size];
 // 	int f = checkGpuMem();
+	//cout << "init Session" << endl;
+	//system("pause");
+
+
 	for (int iter=0; iter<group_num; iter++)
 	{
 
@@ -34,9 +38,8 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 		SessionOptions session_options;
 		_putenv("CUDA_VISIBLE_DEVICES=""");
 		session_options.config.mutable_gpu_options()->set_allow_growth(true);
-// 		session_options.config.set_allow_soft_placement(true);
 
-		//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.7);
+		//session_options.config.mutable_gpu_options()->set_per_process_gpu_memory_fraction(0.01);
 		Status status = NewSession(session_options, &session);
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -51,7 +54,6 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 			std::cout << status.ToString() << "\n";
 			return;
 		}
-
 		status = session->Create(graph_def);
 		if (!status.ok()) {
 			std::cout << status.ToString() << "\n";
@@ -64,8 +66,10 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 // 	f = checkGpuMem();
 // 	capacity_once = ceil((f - 284) / 128.0);
 // 	cout << "capacity_once= " << capacity_once << endl;
+	//cout << "end  init Session" << endl;
+	//system("pause");
 
-	capacity_once = 1;
+	capacity_once = 4;
 	return;
 }
 
@@ -90,6 +94,8 @@ vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> a
 {
 	vtkSmartPointer<vtkImageExport> exporter =
 		vtkSmartPointer<vtkImageExport>::New();
+
+
 	for (int iter = 0; iter <num; iter++)
 	{
 #if VTK_MAJOR_VERSION <= 5
@@ -105,6 +111,8 @@ vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> a
 	int sample_size = seg_size;
 	int *imNumPt = new int(1);
 	vector<Tensor> seg_tensors;
+	//cout << "exportImage 2" << endl;
+	//system("pause");
 
 	for (int s = 0; s < seg_num; s++) {
 		if (s == seg_num-1&& mod_image_num != 0) {
@@ -117,6 +125,9 @@ vector<Tensor> Feature_detector_gpu::exportImage(vtkSmartPointer<vtkImageData> a
 
 		seg_tensors.push_back(TensorCApi::MakeTensor(tftensor->dtype, tftensor->shape, tftensor->buffer));
 	}
+	//cout << "exportImage 3" << endl;
+	//system("pause");
+
 	return seg_tensors;
 }
 
@@ -154,6 +165,7 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 	is_training.scalar<bool>()() = false;
 	int sample_size = seg_size;
 
+
 	for (int s = 0; s < seg_num; s++) {
 		Tensor input_tensor = seg_tensors[s];
 
@@ -167,6 +179,8 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 // 		cout << "before run session!\n";
 
 		//cout << "before detect the free mem is: " << checkGpuMem() << endl;
+		//cout << "detect "<<s << endl;
+		//system("pause");
 
 		Status status = sessions[task_type]->Run(inputs, { "detector/output_node" }, {}, &outputs);
 // 		cout << "finish run session!\n " << endl;
@@ -181,6 +195,9 @@ int Feature_detector_gpu::detect(Teeth_Group task_type,
 		if (s == seg_num - 1 && mod_image_num != 0)sample_size = mod_image_num;
 		for (int i = 0; i < sample_size; i++) {
 			for (int j = 0; j < feature_dim; j++) {
+				if (output_c(i * feature_dim + j) > 1000) {
+					return 1;
+				}
 				coord[s*seg_size + i][j] = output_c(i*feature_dim + j);
 			}
 		}
