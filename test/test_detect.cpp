@@ -81,7 +81,7 @@ int main(int, char *[])
 // 	LPCSTR dllpath;
 	char* dllpath;
 	bool use_gpu = true;
-	if (checkDevice())
+	if (!checkDevice())
 	//if (use_gpu)
 		dllpath = "feature_detect.dll";
 	else

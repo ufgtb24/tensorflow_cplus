@@ -97,7 +97,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>checkDevice.lib;kernel32.lib;winmm.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib;vtkChartsCore-8.2.lib;vtkCommonDataModel-8.2.lib;vtkIOImage-8.2.lib;vtkCommonCore-8.2.lib;vtkCommonExecutionModel-8.2.lib;vtkRenderingOpenGL2-8.2.lib;vtkInteractionStyle-8.2.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:/GitProjects/project/ulabProject/src/thirdparty/curl/lib/$(Configuration);E:\TensorFlowCplusplus\feature_detect\x64\Release;E:\MyDLTools\tensorflow1.6;E:\MyDLTools\tensorflow1.6_cpu;C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v9.1\lib\x64;E:\UlabVTK\VTK-8.2.0\build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:/GitProjects/project/ulabProject/src/thirdparty/curl/lib/$(Configuration);E:\TensorFlowCplusplus\feature_detect\x64\Release;E:\UlabVTK\VTK-8.2.0\build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
