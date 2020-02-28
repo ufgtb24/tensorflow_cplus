@@ -69,7 +69,7 @@ Feature_detector_gpu::Feature_detector_gpu(int len, Teeth_Group group_id[],char*
 	//cout << "end  init Session" << endl;
 	//system("pause");
 
-	capacity_once = 4;
+	capacity_once = 1;
 	return;
 }
 

@@ -145,7 +145,6 @@
     <ClCompile Include="loadmhd.cpp" />
     <ClCompile Include="Source.cpp" />
     <ClCompile Include="stdafx.cpp" />
-    <ClCompile Include="test.cpp" />
     <ClCompile Include="test_detect.cpp" />
     <ClCompile Include="test_device_check.cpp" />
   </ItemGroup>
